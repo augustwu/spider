@@ -70,7 +70,7 @@ ITEM_PIPELINES = {
 }
 
 import os
-IMAGES_STORE = os.join(os.getcwd(),'logo')
+IMAGES_STORE = os.path.join(os.getcwd(),'logo')
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See http://doc.scrapy.org/en/latest/topics/autothrottle.html
