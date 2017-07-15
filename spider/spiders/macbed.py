@@ -71,11 +71,7 @@ class MacbedSpider(CrawlSpider):
 
         self.image_urls = sel.xpath('//div[contains(@class, "article")]//div[contains(@class,"text")]//p//img/@src').extract()
 
-        file_urls  = sel.xpath('//div[contains(@class, "article")]//div[contains(@class,"text")]//img/@src').extract()
-        for index,url in enumerate(file_urls):
-            if index == 1 and  url.startswith('http'):
-                self.file_urls = url
-                break
+        self.file_urls  = sel.xpath('//div[contains(@class, "article")]//div[contains(@class,"text")]//img[1]').extract()
         print '========='
         print self.file_urls
 
