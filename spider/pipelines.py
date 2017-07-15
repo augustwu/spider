@@ -6,6 +6,7 @@
 # See: http://doc.scrapy.org/en/latest/topics/item-pipeline.html
 
 import codecs
+import json
 
 class SpiderPipeline(object):
 

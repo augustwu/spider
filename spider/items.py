@@ -10,15 +10,18 @@ import scrapy
 
 class SpiderItem(scrapy.Item):
     # define the fields for your item here like:
-    name = scrapy.Field()
+    unique_name = scrapy.Field()
+    full_name= scrapy.Field()
     content = scrapy.Field()
     tag = scrapy.Field()
 
     category = scrapy.Field()
     
-    logo_url = scrapy.Field()
-    logos = scrapy.Field()
-
+    image_urls = scrapy.Field()
+    images = scrapy.Field()
+    
+    file_urls = scrapy.Field()
+    files = scrapy.Field()
 
     what_new = scrapy.Field()
     requirements = scrapy.Field()
@@ -27,11 +30,22 @@ class SpiderItem(scrapy.Item):
     features = scrapy.Field()
 
     link1 = scrapy.Field()
+    link1_text = scrapy.Field()
+
     link2 = scrapy.Field()
+    link2_text = scrapy.Field()
+
     link3 = scrapy.Field()
+    link3_text = scrapy.Field()
+
     link4 = scrapy.Field()
+    link4_text = scrapy.Field()
+
     link5 = scrapy.Field()
+    link5_text = scrapy.Field()
+
     link6 = scrapy.Field()
+    link6_text = scrapy.Field()
 
 
 
