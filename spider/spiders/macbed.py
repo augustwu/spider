@@ -65,15 +65,19 @@ class MacbedSpider(CrawlSpider):
 
         download_url = sel.xpath('//div[contains(@class, "appdl")]//a/@href')
         name = sel.xpath('//div[contains(@class, "entry")]//h2//a/text()').extract()
-        print name
-        self.unique_name = name[0].split(u'\u2013')[0].strip()
-        self.full_name = name[0]
+        #print name
+        #self.unique_name = name[0].split(u'\u2013')[0].strip()
+        #self.full_name = name[0]
+        self.unique_name = name[0].replace(u'\u2013', '-').split('-')[0].strip()
+	print self.unique_name
+        self.full_name = name[0].replace(u'\u2013', '-')
+	print self.full_name	
 
         self.image_urls = sel.xpath('//div[contains(@class, "article")]//div[contains(@class,"text")]//p//img/@src').extract()
 
         self.file_urls  = sel.xpath('//div[contains(@class, "article")]//div[contains(@class,"text")]//img[1]').extract()
-        print '========='
-        print self.file_urls
+        #print '========='
+        #print self.file_urls
 
         return [Request(download_url.extract()[0], callback=self.parse_link, meta={
             'splash': {
@@ -102,9 +106,12 @@ class MacbedSpider(CrawlSpider):
         link5 = sel.xpath('//div[contains(@class, "downloadlink")]//a/@href')[4].extract()
         link5_text = sel.xpath('//div[contains(@class, "downloadlink")]//a/text()')[4].extract()
 
-        link6 = sel.xpath('//div[contains(@class, "downloadlink")]//a/@href')[5].extract()
-        link6_text = sel.xpath('//div[contains(@class, "downloadlink")]//a/text()')[5].extract()
-
+	try:
+            link6 = sel.xpath('//div[contains(@class, "downloadlink")]//a/@href')[5].extract()
+            link6_text = sel.xpath('//div[contains(@class, "downloadlink")]//a/text()')[5].extract()
+	except IndexError,e:
+	    link6 = ''
+	    link6_text = ''
 
         item['unique_name'] = self.unique_name
         item['full_name'] = self.full_name
@@ -129,7 +136,7 @@ class MacbedSpider(CrawlSpider):
         item['link6_text'] = link6_text
         item['image_urls'] = self.image_urls
         item['file_urls'] = self.file_urls
-        print item
+        #print item
         return item
 
 
