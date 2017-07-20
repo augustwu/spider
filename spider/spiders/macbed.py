@@ -69,9 +69,10 @@ class MacbedSpider(CrawlSpider):
         #self.unique_name = name[0].split(u'\u2013')[0].strip()
         #self.full_name = name[0]
         self.unique_name = name[0].replace(u'\u2013', '-').split('-')[0].strip()
-	print self.unique_name
+	      #print self.unique_name
         self.full_name = name[0].replace(u'\u2013', '-')
-	print self.full_name	
+        
+        print self.full_name	
 
         self.image_urls = sel.xpath('//div[contains(@class, "article")]//div[contains(@class,"text")]//p//img/@src').extract()
 
@@ -105,13 +106,14 @@ class MacbedSpider(CrawlSpider):
 
         link5 = sel.xpath('//div[contains(@class, "downloadlink")]//a/@href')[4].extract()
         link5_text = sel.xpath('//div[contains(@class, "downloadlink")]//a/text()')[4].extract()
-
-	try:
+        
+        try:
             link6 = sel.xpath('//div[contains(@class, "downloadlink")]//a/@href')[5].extract()
             link6_text = sel.xpath('//div[contains(@class, "downloadlink")]//a/text()')[5].extract()
-	except IndexError,e:
-	    link6 = ''
-	    link6_text = ''
+          
+        except IndexError,e:
+            link6 = ''
+            link6_text = ''
 
         item['unique_name'] = self.unique_name
         item['full_name'] = self.full_name

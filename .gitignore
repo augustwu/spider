@@ -1,4 +1,7 @@
 .project
+.pyc
+.pyo
+.swp
 .classpath
 .settings
 .idea

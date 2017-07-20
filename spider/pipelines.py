@@ -12,32 +12,36 @@ from datetime import datetime
 
 #mysql_con  = MySQLdb.connect(host='localhost',user='hiveuser',passwd='123456',db='wp')
 mysql_con  = MySQLdb.connect(host='localhost',user='root',passwd='1',db='wp')
-
+ip = 'http://192.168.3.50'
 
 class SpiderPipeline(object):
 
-    
 
-    def exists_item(self,title):
+    def exists_item(self,post_name):
 	
-        sql = u"select count(0) from wp_posts where post_title='%s'" % title
+        sql = u"select count(0) from wp_posts where post_name='%s'" % post_name
         self.cursor.execute(sql)
-        return self.cursor.fetchone()[0]
+        item = self.cursor.fetchone()[0]
+        print item
+        print '~=========='
+        return item 
 
     
     def insert_item(self,item):
+        new_id = self.cursor.lastrowid
+        guid = '%s/?p=%s' % (ip,new_id+1)
         sql = '''insert into wp_posts(post_author,post_date,post_date_gmt,post_content,
             post_title,post_excerpt,post_name,post_modified,
             post_modified_gmt,post_type,to_ping,pinged,post_content_filtered) values 
-            ('%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s')''' % (1,datetime.now(),datetime.now(),'<br>'.join(item.get('content')),item.get('full_name'),item.get('unique_name'),item.get('full_name'),datetime.now(),datetime.now(),'post','','','')
+            ('%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s')''' % (1,datetime.now(),datetime.now(),'<br>'.join(item.get('content')),item.get('full_name'),item.get('unique_name')[:50],item.get('unique_name').replace(' ','-').replace('.','-'),datetime.now(),datetime.now(),'post','','','')
 
-	print sql
         self.cursor.execute(sql)
-	print int(self.db.insert_id())
-	print '=============='
-	last_id =   int(self.db.insert_id())
-	self.db.commit()
-	return last_id
+        last_id =   int(self.db.insert_id())
+        update_sql = "update wp_posts set guid = '%s' where id=%s" % (guid,last_id)
+
+        self.cursor.execute(sql)
+        self.db.commit()
+        return last_id
         
 
     def exists_category(self,category):
@@ -49,27 +53,30 @@ class SpiderPipeline(object):
     def insert_category(self,item):
         sql = "insert into wp_terms(name,slug) values('%s','%s')" % (item.get('category'),item.get('category'))
         self.cursor.execute(sql)
-	last_id =   int(self.db.insert_id())
-	self.db.commit()
-	return last_id
+      	last_id =   int(self.db.insert_id())
+      	self.db.commit()
+      	return last_id
         
         
     def exists_term_rel(self):
-	pass
+      	pass
 
     def __init__(self):
         self.db = mysql_con
-	self.db.set_character_set('utf8')
+        self.db.set_character_set('utf8')
 
         self.cursor = self.db.cursor()
-	self.cursor.execute('SET NAMES utf8;')
-	self.cursor.execute('SET CHARACTER SET utf8;')
-	self.cursor.execute('SET character_set_connection=utf8;')
+        self.cursor.execute('SET NAMES utf8;')
+        self.cursor.execute('SET CHARACTER SET utf8;')
+        self.cursor.execute('SET character_set_connection=utf8;')
 
     def process_item(self, item, spider):
         title = item.get('full_name')
+        print title
+        print '~~~~~~~~~'
         category = item.get('category')
-        if not self.exists_item(title):
+        post_name = item.get('unique_name').replace(' ','-').replace('.','-')
+        if not self.exists_item(post_name):
             self.insert_item(item)
             
       	if not self.exists_category(category):
