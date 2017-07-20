@@ -39,7 +39,7 @@ class SpiderPipeline(object):
         last_id =   int(self.db.insert_id())
         update_sql = "update wp_posts set guid = '%s' where id=%s" % (guid,last_id)
 
-        self.cursor.execute(sql)
+        self.cursor.execute(update_sql)
         self.db.commit()
         return last_id
         
@@ -70,20 +70,49 @@ class SpiderPipeline(object):
         self.cursor.execute('SET CHARACTER SET utf8;')
         self.cursor.execute('SET character_set_connection=utf8;')
 
+    
+    def insert_term_taxonomy(self,term_id):
+        sql = "insert into wp_term_taxonomy(term_id,taxonomy) values('%s','%s')" % (term_id,'category')
+        self.cursor.execute(sql)
+        self.db.commit()
+
+    def select_category_id(self,category):
+        sql = "select term_id from wp_terms where name='%s'" % category
+        self.cursor.execute(sql)
+        return self.cursor.fetchone()[0]
+
+    
+    def insert_wp_term_relationships(self,object_id,term_taxonomy_id):
+        sql = "insert into wp_term_relationships(object_id,term_taxonomy_id) values (%s,%s)" % (object_id,term_taxonomy_id)
+        print sql
+        self.cursor.execute(sql)
+        self.db.commit()
+
     def process_item(self, item, spider):
         title = item.get('full_name')
         print title
-        print '~~~~~~~~~'
         category = item.get('category')
         post_name = item.get('unique_name').replace(' ','-').replace('.','-')
-        if not self.exists_item(post_name):
-            self.insert_item(item)
+        
+        category_id = None
+        if_exist = self.exists_item(post_name)
+        
+        item_id = None
+        if not if_exist:
+            item_id = self.insert_item(item)
             
       	if not self.exists_category(category):
             self.insert_category(item)
-
-
       
+
+        if not if_exist:
+            category_id = self.select_category_id(category)
+            try:
+                self.insert_term_taxonomy(category_id)
+            except MySQLdb.IntegrityError:
+                pass
+            
+            self.insert_wp_term_relationships(item_id,category_id)
 
 
 
