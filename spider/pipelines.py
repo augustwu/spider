@@ -22,11 +22,11 @@ class SpiderPipeline(object):
         sql = u"select count(0) from wp_posts where post_name='%s'" % post_name
         self.cursor.execute(sql)
         item = self.cursor.fetchone()[0]
-        print item
-        print '~=========='
         return item 
-
     
+    def exists_tag(self,tag):
+        sql = "select count(0) from "
+
     def insert_item(self,item):
         new_id = self.cursor.lastrowid
         guid = '%s/?p=%s' % (ip,new_id+1)
@@ -35,6 +35,7 @@ class SpiderPipeline(object):
             post_modified_gmt,post_type,to_ping,pinged,post_content_filtered) values 
             ('%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s')''' % (1,datetime.now(),datetime.now(),'<br>'.join(item.get('content')),item.get('full_name'),item.get('unique_name')[:50],item.get('unique_name').replace(' ','-').replace('.','-'),datetime.now(),datetime.now(),'post','','','')
 
+        print sql
         self.cursor.execute(sql)
         last_id =   int(self.db.insert_id())
         update_sql = "update wp_posts set guid = '%s' where id=%s" % (guid,last_id)
@@ -44,14 +45,14 @@ class SpiderPipeline(object):
         return last_id
         
 
-    def exists_category(self,category):
+    def exists_category_tag(self,category):
         sql = "select count(0) from wp_terms where name='%s'" % category
         self.cursor.execute(sql)
 	
         return self.cursor.fetchone()[0]
 
-    def insert_category(self,item):
-        sql = "insert into wp_terms(name,slug) values('%s','%s')" % (item.get('category'),item.get('category'))
+    def insert_category_tag(self,category):
+        sql = "insert into wp_terms(name,slug) values('%s','%s')" % (category,category)
         self.cursor.execute(sql)
       	last_id =   int(self.db.insert_id())
       	self.db.commit()
@@ -91,30 +92,67 @@ class SpiderPipeline(object):
     def process_item(self, item, spider):
         title = item.get('full_name')
         print title
-        category = item.get('category')
+        category_list = item.get('category')
         post_name = item.get('unique_name').replace(' ','-').replace('.','-')
         
-        category_id = None
         if_exist = self.exists_item(post_name)
         
+        tag_list = item.get('tag')
         item_id = None
+        print item
+        print '============'
         if not if_exist:
             item_id = self.insert_item(item)
             
-      	if not self.exists_category(category):
-            self.insert_category(item)
+        for category in category_list:
+      	    if not self.exists_category_tag(category):
+                self.insert_category_tag(category)
+        for tag in tag_list:
+            if not self.exists_category_tag(tag):
+                self.insert_category_tag(tag)
       
+        
 
         if not if_exist:
-            category_id = self.select_category_id(category)
-            try:
-                self.insert_term_taxonomy(category_id)
-            except MySQLdb.IntegrityError:
-                pass
+            for category in category_list: 
+                print category
+                category_id = self.select_category_tag_id(category)
+                if category_id:
+                    try:
+                        self.insert_term_taxonomy(category_id)
+                    except MySQLdb.IntegrityError:
+                        pass
+                    
+                    self.insert_wp_term_relationships(item_id,category_id)
+
+            for tag in tag_list:
+                print tag
+                tag_id = self.select_category_tag_id(tag)
+                if tag_id:
+                    try:
+                        self.insert_term_taxonomy_tag(tag_id)
+                    except MySQLdb.IntegrityError:
+                        pass
+                    
+                    self.insert_wp_term_relationships(item_id,tag_id)
+                    
+
             
-            self.insert_wp_term_relationships(item_id,category_id)
+    def insert_term_taxonomy_tag(self,term_id):
+        sql = "insert into wp_term_taxonomy(term_id,taxonomy) values('%s','%s')" % (term_id,'category')
+        self.cursor.execute(sql)
+        self.db.commit()
 
+    def select_category_tag_id(self,category):
+        sql = "select term_id from wp_terms where name='%s'" % category
+        self.cursor.execute(sql)
+        return self.cursor.fetchone()[0]
 
-
+    
+    def insert_wp_term_relationships(self,object_id,term_taxonomy_id):
+        sql = "insert into wp_term_relationships(object_id,term_taxonomy_id) values (%s,%s)" % (object_id,term_taxonomy_id)
+        print sql
+        self.cursor.execute(sql)
+        self.db.commit()
 
   

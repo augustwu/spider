@@ -60,7 +60,6 @@ class MacbedSpider(CrawlSpider):
         self.tag = sel.xpath('//div[contains(@class, "entry")]//div[contains(@class,"tag")]//a/text()').extract()
         self.content = sel.xpath('//div[contains(@class, "article")]//div[contains(@class,"text")]//p|//div[contains(@class, "article")]//div[contains(@class,"text")]//ul|//div[contains(@class, "article")]//div[contains(@class,"text")]//h5|//div[contains(@class, "article")]//div[contains(@class,"text")]//h3[position() < 2]|//div[contains(@class, "article")]//div[contains(@class,"text")]//br')[1:].extract()
         self.content = sel.xpath('//div[contains(@class, "article")]//div[contains(@class,"text")]/*[not(@id="div-gpt-ad-1462783699686-0" or @class="appdl"  or self::a or self::script or @class="alignright" or @id="appked_link_39590")]')[1:].extract()
-        print self.content
 
         what_new = sel.xpath('//div[contains(@class, "article")]//div[contains(@class,"text")]//p|//div[contains(@class, "article")]//div[contains(@class,"text")]//ul|//div[contains(@class, "article")]//div[contains(@class,"text")]//h3')[1:].extract()
 
@@ -82,8 +81,6 @@ class MacbedSpider(CrawlSpider):
 
         self.file_urls  = sel.xpath('//div[contains(@class, "article")]//div[contains(@class,"text")]//img[1]').extract()
         self.screen_urls = ['http:%s'  % sel.xpath('//div[contains(@class, "article")]//div[contains(@class,"text")]//img/@src')[-2].extract()]
-        print self.screen_urls
-        print '-------------------'
         #print '========='
         #print self.file_urls
 
@@ -147,6 +144,7 @@ class MacbedSpider(CrawlSpider):
         item['file_urls'] = self.file_urls
         
         item['screen_urls'] =  self.screen_urls
+        item['tag'] = self.tag
         #print item
         return item
 
