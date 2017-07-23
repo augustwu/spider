@@ -10,9 +10,6 @@ class MacbedSpider(CrawlSpider):
     name = "macbed"
     download_delay = 1
     allowed_domains = ["macbed.com","www.macbed.com"]
-    #start_urls = [
-    #    "https://www.macbed.com/page/%s/"  % page for page in range(10000,1,-1)
-    #]
 
     start_urls = [
         "https://www.macbed.com/"
@@ -29,6 +26,9 @@ class MacbedSpider(CrawlSpider):
         self.images = None
         self.unique_name = None
         self.full_name = None
+        
+        self.screen_urls = None
+        self.screens = None
 
     def parse(self, response):
         sel = Selector(response)
@@ -61,6 +61,7 @@ class MacbedSpider(CrawlSpider):
         self.content = sel.xpath('//div[contains(@class, "article")]//div[contains(@class,"text")]//p|//div[contains(@class, "article")]//div[contains(@class,"text")]//ul|//div[contains(@class, "article")]//div[contains(@class,"text")]//h5|//div[contains(@class, "article")]//div[contains(@class,"text")]//h3[position() < 2]|//div[contains(@class, "article")]//div[contains(@class,"text")]//br')[1:].extract()
         self.content = sel.xpath('//div[contains(@class, "article")]//div[contains(@class,"text")]/*[not(@id="div-gpt-ad-1462783699686-0" or @class="appdl"  or self::a or self::script or @class="alignright" or @id="appked_link_39590")]')[1:].extract()
         print self.content
+
         what_new = sel.xpath('//div[contains(@class, "article")]//div[contains(@class,"text")]//p|//div[contains(@class, "article")]//div[contains(@class,"text")]//ul|//div[contains(@class, "article")]//div[contains(@class,"text")]//h3')[1:].extract()
 
         requirements = sel.xpath('//div[contains(@class, "article")]//div[contains(@class,"text")]//p|//div[contains(@class, "article")]//div[contains(@class,"text")]//ul|//div[contains(@class, "article")]//div[contains(@class,"text")]//h3')[1:].extract()
@@ -73,7 +74,6 @@ class MacbedSpider(CrawlSpider):
         #self.unique_name = name[0].split(u'\u2013')[0].strip()
         #self.full_name = name[0]
         self.unique_name = name[0].replace(u'\u2013', '-').split('-')[0].strip()
-	      #print self.unique_name
         self.full_name = name[0].replace(u'\u2013', '-')
         
         print self.full_name	
@@ -81,6 +81,9 @@ class MacbedSpider(CrawlSpider):
         self.image_urls = sel.xpath('//div[contains(@class, "article")]//div[contains(@class,"text")]//p//img/@src').extract()
 
         self.file_urls  = sel.xpath('//div[contains(@class, "article")]//div[contains(@class,"text")]//img[1]').extract()
+        self.screen_urls = ['http:%s'  % sel.xpath('//div[contains(@class, "article")]//div[contains(@class,"text")]//img/@src')[-2].extract()]
+        print self.screen_urls
+        print '-------------------'
         #print '========='
         #print self.file_urls
 
@@ -142,6 +145,8 @@ class MacbedSpider(CrawlSpider):
         item['link6_text'] = link6_text
         item['image_urls'] = self.image_urls
         item['file_urls'] = self.file_urls
+        
+        item['screen_urls'] =  self.screen_urls
         #print item
         return item
 

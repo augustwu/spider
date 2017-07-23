@@ -20,6 +20,9 @@ class SpiderItem(scrapy.Item):
     image_urls = scrapy.Field()
     images = scrapy.Field()
     
+    screen_urls = scrapy.Field()
+    screens = scrapy.Field()
+    
     file_urls = scrapy.Field()
     files = scrapy.Field()
 

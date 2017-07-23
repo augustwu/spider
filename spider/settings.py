@@ -70,6 +70,9 @@ ITEM_PIPELINES = {
     'scrapy.pipelines.images.ImagesPipeline':1,
 }
 
+IMAGES_URLS_FIELD = "screen_urls"
+IMAGES_RESULT_FIELD = "screens"
+
 import os
 IMAGES_STORE = os.path.join(os.getcwd(),'logo')
 FILES_STORE =  os.path.join(os.getcwd(),'screen')
