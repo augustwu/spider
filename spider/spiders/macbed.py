@@ -56,15 +56,19 @@ class MacbedSpider(CrawlSpider):
         
         item = SpiderItem()
 
-        self.category = sel.xpath('//div[contains(@class, "entry")]//div[contains(@class,"desc")]//a/text()')[-1].extract()
+        self.category = sel.xpath('//div[contains(@class, "entry")]//div[contains(@class,"desc")]//a/text()')[1:].extract()
+        self.tag = sel.xpath('//div[contains(@class, "entry")]//div[contains(@class,"tag")]//a/text()').extract()
         self.content = sel.xpath('//div[contains(@class, "article")]//div[contains(@class,"text")]//p|//div[contains(@class, "article")]//div[contains(@class,"text")]//ul|//div[contains(@class, "article")]//div[contains(@class,"text")]//h5|//div[contains(@class, "article")]//div[contains(@class,"text")]//h3[position() < 2]|//div[contains(@class, "article")]//div[contains(@class,"text")]//br')[1:].extract()
-
+        self.content = sel.xpath('//div[contains(@class, "article")]//div[contains(@class,"text")]/*[not(@id="div-gpt-ad-1462783699686-0" or @class="appdl"  or self::a or self::script or @class="alignright" or @id="appked_link_39590")]')[1:].extract()
+        print self.content
         what_new = sel.xpath('//div[contains(@class, "article")]//div[contains(@class,"text")]//p|//div[contains(@class, "article")]//div[contains(@class,"text")]//ul|//div[contains(@class, "article")]//div[contains(@class,"text")]//h3')[1:].extract()
 
         requirements = sel.xpath('//div[contains(@class, "article")]//div[contains(@class,"text")]//p|//div[contains(@class, "article")]//div[contains(@class,"text")]//ul|//div[contains(@class, "article")]//div[contains(@class,"text")]//h3')[1:].extract()
 
         download_url = sel.xpath('//div[contains(@class, "appdl")]//a/@href')
         name = sel.xpath('//div[contains(@class, "entry")]//h2//a/text()').extract()
+		
+		
         #print name
         #self.unique_name = name[0].split(u'\u2013')[0].strip()
         #self.full_name = name[0]
