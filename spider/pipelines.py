@@ -142,7 +142,7 @@ class SpiderPipeline(object):
                 tag_id = self.select_category_tag_id(tag)
                 if tag_id:
                     try:
-                        self.insert_term_taxonomy_tag(tag_id,'tag')
+                        self.insert_term_taxonomy_tag(tag_id,'post_tag')
                     except MySQLdb.IntegrityError:
                         pass
                     
