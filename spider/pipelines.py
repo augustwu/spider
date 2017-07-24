@@ -30,13 +30,25 @@ class SpiderPipeline(object):
     def insert_item(self,item):
         new_id = self.cursor.lastrowid
         guid = '%s/?p=%s' % (ip,new_id+1)
-        sql = '''insert into wp_posts(post_author,post_date,post_date_gmt,post_content,
-            post_title,post_excerpt,post_name,post_modified,
-            post_modified_gmt,post_type,to_ping,pinged,post_content_filtered) values 
-            ('%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s')''' % (1,datetime.now(),datetime.now(),'<br>'.join(item.get('content')),item.get('full_name'),item.get('unique_name')[:50],item.get('unique_name').replace(' ','-').replace('.','-'),datetime.now(),datetime.now(),'post','','','')
+        sql = u'''insert into wp_posts(post_author,post_content,
+            post_title,post_excerpt,post_name,
+            post_type,to_ping,pinged,post_content_filtered) values 
+            (%s,%s,%s,%s,%s,%s,%s,%s,%s)'''
 
-        print sql
-        self.cursor.execute(sql)
+        #sql2 = u'''insert into wp_posts(post_author,post_date,post_date_gmt,post_content,
+        #    post_title,post_excerpt,post_name,post_modified,
+        #    post_modified_gmt,post_type,to_ping,pinged,post_content_filtered) values 
+        #    ('%s','%s','%s',u"%s",'%s','%s','%s','%s','%s','%s','%s','%s','%s')''' % (1,datetime.now(),datetime.now(),MySQLdb.escape_string(''.join(item.get('content')).replace(u'\u2013', '-').replace(u'\u2019',',')) ,item.get('full_name').replace(u'\u2013', '-'),
+        #    item.get('unique_name')[:50],item.get('unique_name').replace(' ','-').replace('.','-').replace(u'\u2013', '-'),datetime.now(),datetime.now(),'post','','','')
+      
+
+        content = MySQLdb.escape_string(''.join(item.get('content')).replace(u'\u2013', '-').replace(u'\u2019',','))
+        post_title = MySQLdb.escape_string(item.get('full_name'))
+        post_excerpt = MySQLdb.escape_string(item.get('unique_name')[:50])
+        post_name = MySQLdb.escape_string(item.get('unique_name').replace(' ','-').replace('.','-'))
+
+        self.cursor.execute(sql, (1,content,post_title, post_excerpt,post_name,'post','','','' ))
+
         last_id =   int(self.db.insert_id())
         update_sql = "update wp_posts set guid = '%s' where id=%s" % (guid,last_id)
 

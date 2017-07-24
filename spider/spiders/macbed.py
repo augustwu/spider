@@ -69,9 +69,6 @@ class MacbedSpider(CrawlSpider):
         name = sel.xpath('//div[contains(@class, "entry")]//h2//a/text()').extract()
 		
 		
-        #print name
-        #self.unique_name = name[0].split(u'\u2013')[0].strip()
-        #self.full_name = name[0]
         self.unique_name = name[0].replace(u'\u2013', '-').split('-')[0].strip()
         self.full_name = name[0].replace(u'\u2013', '-')
         
