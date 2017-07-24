@@ -131,7 +131,7 @@ class SpiderPipeline(object):
                 category_id = self.select_category_tag_id(category)
                 if category_id:
                     try:
-                        self.insert_term_taxonomy(category_id)
+                        self.insert_term_taxonomy_tag(category_id,'category')
                     except MySQLdb.IntegrityError:
                         pass
                     
@@ -142,7 +142,7 @@ class SpiderPipeline(object):
                 tag_id = self.select_category_tag_id(tag)
                 if tag_id:
                     try:
-                        self.insert_term_taxonomy_tag(tag_id)
+                        self.insert_term_taxonomy_tag(tag_id,'tag')
                     except MySQLdb.IntegrityError:
                         pass
                     
@@ -150,8 +150,8 @@ class SpiderPipeline(object):
                     
 
             
-    def insert_term_taxonomy_tag(self,term_id):
-        sql = "insert into wp_term_taxonomy(term_id,taxonomy) values('%s','%s')" % (term_id,'category')
+    def insert_term_taxonomy_tag(self,term_id,type):
+        sql = "insert into wp_term_taxonomy(term_id,taxonomy) values('%s','%s')" % (term_id,type)
         self.cursor.execute(sql)
         self.db.commit()
 
@@ -163,7 +163,6 @@ class SpiderPipeline(object):
     
     def insert_wp_term_relationships(self,object_id,term_taxonomy_id):
         sql = "insert into wp_term_relationships(object_id,term_taxonomy_id) values (%s,%s)" % (object_id,term_taxonomy_id)
-        print sql
         self.cursor.execute(sql)
         self.db.commit()
 
