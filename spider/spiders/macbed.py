@@ -43,7 +43,7 @@ class MacbedSpider(CrawlSpider):
         sel = Selector(response)
 
         urls = sel.xpath('//div[contains(@class, "entry")]//h2//a/@href')
-        for url in urls[:1]:
+        for url in urls[:4]:
             yield Request(url.extract(), callback=self.parse_product, meta={
                 'splash': {
                     'args': {'wait': 0.5}},

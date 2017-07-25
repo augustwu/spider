@@ -9,7 +9,7 @@ import codecs
 import json
 import MySQLdb
 from datetime import datetime
-
+import time
 #mysql_con  = MySQLdb.connect(host='localhost',user='hiveuser',passwd='123456',db='wp')
 mysql_con  = MySQLdb.connect(host='localhost',user='root',passwd='1',db='wp')
 ip = 'http://192.168.3.50'
@@ -18,7 +18,6 @@ class SpiderPipeline(object):
 
 
     def exists_item(self,post_name):
-	
         sql = u"select count(0) from wp_posts where post_name='%s'" % post_name
         self.cursor.execute(sql)
         item = self.cursor.fetchone()[0]
@@ -33,6 +32,13 @@ class SpiderPipeline(object):
         item = self.cursor.fetchone()[0]
         return item
         
+    def get_item(self,item):
+        print item.get('full_name')
+        print '==============999999999=='
+        sql = u"select id from wp_posts where post_title='%s'" % item.get('full_name') 
+        self.cursor.execute(sql)
+        item = self.cursor.fetchone()[0]
+        return item 
 
     def insert_item(self,item):
         new_id = self.get_max_id('wp_posts')
@@ -126,7 +132,10 @@ class SpiderPipeline(object):
         print '============'
         if not if_exist:
             item_id = self.insert_item(item)
-            
+        else:
+            item_id = self.get_item(item)
+
+        time.sleep(2)  
         for category in category_list:
             category ='-'.join( category.replace('&','').split(' '))
       	    if not self.exists_category_tag(category):
@@ -194,7 +203,7 @@ class SpiderPipeline(object):
 
             
     def insert_term_taxonomy_tag(self,term_id,type):
-        sql = "insert into wp_term_taxonomy(term_id,taxonomy,count) values('%s','%s','%s')" % (term_id,type,1)
+        sql = "insert into wp_term_taxonomy(term_id,taxonomy,count,description) values('%s','%s','%s','')" % (term_id,type,1)
         self.cursor.execute(sql)
         self.db.commit()
 
