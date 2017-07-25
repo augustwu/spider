@@ -32,8 +32,8 @@ class SpiderPipeline(object):
         guid = '%s/?p=%s' % (ip,new_id+1)
         sql = u'''insert into wp_posts(post_author,post_content,
             post_title,post_excerpt,post_name,
-            post_type,to_ping,pinged,post_content_filtered) values 
-            (%s,%s,%s,%s,%s,%s,%s,%s,%s)'''
+            post_type,to_ping,pinged,post_content_filtered,post_date,post_date_gmt,post_modified,post_modified_gmt) values 
+            (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)'''
 
         #sql2 = u'''insert into wp_posts(post_author,post_date,post_date_gmt,post_content,
         #    post_title,post_excerpt,post_name,post_modified,
@@ -42,12 +42,12 @@ class SpiderPipeline(object):
         #    item.get('unique_name')[:50],item.get('unique_name').replace(' ','-').replace('.','-').replace(u'\u2013', '-'),datetime.now(),datetime.now(),'post','','','')
       
 
-        content = MySQLdb.escape_string(''.join(item.get('content')).replace(u'\u2013', '-').replace(u'\u2019',','))
+        content = MySQLdb.escape_string(''.join(item.get('content')).replace(u'\u2013', '-').replace(u'\u2019',',').replace(u'\xae','@'))
         post_title = MySQLdb.escape_string(item.get('full_name'))
         post_excerpt = MySQLdb.escape_string(item.get('unique_name')[:50])
         post_name = MySQLdb.escape_string(item.get('unique_name').replace(' ','-').replace('.','-'))
 
-        self.cursor.execute(sql, (1,content,post_title, post_excerpt,post_name,'post','','','' ))
+        self.cursor.execute(sql, (1,content,post_title, post_excerpt,post_name,'post','','','',datetime.now(),datetime.now(),datetime.now(),datetime.now()))
 
         last_id =   int(self.db.insert_id())
         update_sql = "update wp_posts set guid = '%s' where id=%s" % (guid,last_id)
@@ -117,12 +117,12 @@ class SpiderPipeline(object):
             item_id = self.insert_item(item)
             
         for category in category_list:
-            category = category.replace(' ','-').replace('&','')
+            category ='-'.join( category.replace('&','').split(' '))
       	    if not self.exists_category_tag(category):
                 self.insert_category_tag(category)
 
         for tag in tag_list:
-            tag = tag.replace(' ','-').replace('&','')
+            tag ='-'.join( tag.replace('&','').split(' '))
             if not self.exists_category_tag(tag):
                 self.insert_category_tag(tag)
       
@@ -130,7 +130,7 @@ class SpiderPipeline(object):
 
         if not if_exist:
             for category in category_list: 
-                category = category.replace(' ','-').replace('&','')
+                category ='-'.join( category.replace('&','').split(' '))
                 print category
                 category_id = self.select_category_tag_id(category)
 
@@ -143,7 +143,7 @@ class SpiderPipeline(object):
                     self.insert_wp_term_relationships(item_id,category_id)
 
             for tag in tag_list:
-                tag = tag.replace(' ','-').replace('&','')
+                tag ='-'.join( tag.replace('&','').split(' '))
                 print tag
                 tag_id = self.select_category_tag_id(tag)
                 if tag_id:
