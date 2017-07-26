@@ -138,7 +138,7 @@ class SpiderPipeline(object):
 
         time.sleep(2)  
         for category in category_list:
-            category ='-'.join( category.replace('&','').split(' '))
+            category ='-'.join( category.replace('&','').split(' ')).replace('--','-')
       	    if not self.exists_category_tag(category):
                 self.insert_category_tag(category)
 
@@ -155,7 +155,7 @@ class SpiderPipeline(object):
                 self.insert_wp_term_relationships(item_id,term_taxonomy_id)
 
         for tag in tag_list:
-            tag ='-'.join( tag.replace('&','').split(' '))
+            tag ='-'.join( tag.replace('&','').split(' ')).replace('--','-')
             if not self.exists_category_tag(tag):
                 self.insert_category_tag(tag)
 
