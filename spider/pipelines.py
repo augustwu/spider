@@ -46,8 +46,8 @@ class SpiderPipeline(object):
         guid = '%s/?p=%s' % (ip,new_id+1)
         sql = u'''insert into wp_posts(post_author,post_content,
             post_title,post_excerpt,post_name,
-            post_type,to_ping,pinged,post_content_filtered,post_date,post_date_gmt,post_modified,post_modified_gmt) values 
-            (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)'''
+            post_type,to_ping,pinged,post_content_filtered,post_date,post_date_gmt,post_modified,post_modified_gmt,post_status) values 
+            (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)'''
 
         #sql2 = u'''insert into wp_posts(post_author,post_date,post_date_gmt,post_content,
         #    post_title,post_excerpt,post_name,post_modified,
@@ -61,7 +61,7 @@ class SpiderPipeline(object):
         post_excerpt = item.get('unique_name')[:50]
         post_name = item.get('unique_name').replace(' ','-').replace('.','-')
 
-        self.cursor.execute(sql, (1,content,post_title, post_excerpt,post_name,'post','','','',datetime.now(),datetime.now(),datetime.now(),datetime.now()))
+        self.cursor.execute(sql, (1,content,post_title, post_excerpt,post_name,'post','','','',datetime.now(),datetime.now(),datetime.now(),datetime.now(),'publish'))
 
         self.db.commit()
         last_id =   int(self.cursor.lastrowid)
@@ -83,8 +83,9 @@ class SpiderPipeline(object):
     def insert_category_tag(self,category):
         sql = "insert into wp_terms(name,slug) values('%s','%s')" % (category,category)
         self.cursor.execute(sql)
-      	last_id =   int(self.cursor.lastrowid)
       	self.db.commit()
+
+      	last_id =   int(self.cursor.lastrowid)
         print last_id,
         print 'kkkkkkkkkkk'
       	return last_id
@@ -145,15 +146,15 @@ class SpiderPipeline(object):
 
             if category_id:
                 try:
-                    self.insert_term_taxonomy_tag(category_id,'category')
+                    term_taxonomy_id = self.insert_term_taxonomy_tag(category_id,'category')
+                    print item_id,category,category_id,term_taxonomy_id
                 except MySQLdb.IntegrityError,e:
                     print e
                     print '~~~~~~~~'
                     pass
                 
-                print item_id,category,category_id
                 print '~~~~~~~~'
-                self.insert_wp_term_relationships(item_id,category_id)
+                self.insert_wp_term_relationships(item_id,term_taxonomy_id)
 
         for tag in tag_list:
             tag ='-'.join( tag.replace('&','').split(' '))
@@ -163,14 +164,14 @@ class SpiderPipeline(object):
             tag_id = self.select_category_tag_id(tag)
             if tag_id:
                 try:
-                    self.insert_term_taxonomy_tag(tag_id,'post_tag')
+                    term_taxonomy_id =  self.insert_term_taxonomy_tag(tag_id,'post_tag')
+                    print item_id,tag,tag_id,term_taxonomy_id
                 except MySQLdb.IntegrityError,e:
                     print e
                     pass
                 
-                print item_id,tag,tag_id
                 print '-----------------'
-                self.insert_wp_term_relationships(item_id,tag_id)
+                self.insert_wp_term_relationships(item_id,term_taxonomy_id)
       
         
 
@@ -206,6 +207,8 @@ class SpiderPipeline(object):
         sql = "insert into wp_term_taxonomy(term_id,taxonomy,count,description) values('%s','%s','%s','')" % (term_id,type,1)
         self.cursor.execute(sql)
         self.db.commit()
+        last_id =   int(self.cursor.lastrowid)
+        return last_id
 
     def select_category_tag_id(self,category):
         sql = "select term_id from wp_terms where name='%s'" % category
@@ -214,8 +217,10 @@ class SpiderPipeline(object):
 
     
     def insert_wp_term_relationships(self,object_id,term_taxonomy_id):
-        sql = "insert into wp_term_relationships(object_id,term_taxonomy_id) values (%s,%s)" % (object_id,term_taxonomy_id)
-        self.cursor.execute(sql)
-        self.db.commit()
+        try:        
+          sql = "insert into wp_term_relationships(object_id,term_taxonomy_id) values (%s,%s)" % (object_id,term_taxonomy_id)
+          self.cursor.execute(sql)
+          self.db.commit()
+        except MySQLdb.IntegrityError,e:
+          print e
 
-  

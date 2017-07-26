@@ -78,8 +78,6 @@ class MacbedSpider(CrawlSpider):
 
         self.file_urls  = sel.xpath('//div[contains(@class, "article")]//div[contains(@class,"text")]//img[1]').extract()
         self.screen_urls = ['http:%s'  % sel.xpath('//div[contains(@class, "article")]//div[contains(@class,"text")]//img/@src')[-2].extract()]
-        #print '========='
-        #print self.file_urls
 
         return [Request(download_url.extract()[0], callback=self.parse_link, meta={
             'splash': {
@@ -142,7 +140,6 @@ class MacbedSpider(CrawlSpider):
         
         item['screen_urls'] =  self.screen_urls
         item['tag'] = self.tag
-        #print item
         return item
 
 
