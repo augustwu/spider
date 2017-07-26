@@ -169,34 +169,6 @@ class SpiderPipeline(object):
                 
                 self.insert_wp_term_relationships(item_id,term_taxonomy_id)
       
-        
-
-        #if not if_exist:
-        #    for category in category_list: 
-        #        category ='-'.join( category.replace('&','').split(' '))
-        #        print category
-        #        category_id = self.select_category_tag_id(category)
-
-        #        if category_id:
-        #            try:
-        #                self.insert_term_taxonomy_tag(category_id,'category')
-        #            except MySQLdb.IntegrityError:
-        #                pass
-        #            
-        #            self.insert_wp_term_relationships(item_id,category_id)
-
-        #    for tag in tag_list:
-        #        tag ='-'.join( tag.replace('&','').split(' '))
-        #        print tag
-        #        tag_id = self.select_category_tag_id(tag)
-        #        if tag_id:
-        #            try:
-        #                self.insert_term_taxonomy_tag(tag_id,'post_tag')
-        #            except MySQLdb.IntegrityError:
-        #                pass
-        #            
-        #            self.insert_wp_term_relationships(item_id,tag_id)
-        #            
 
             
     def insert_term_taxonomy_tag(self,term_id,type):

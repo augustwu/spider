@@ -89,7 +89,7 @@ class MacbedSpider(CrawlSpider):
         })
         
         request.meta['category'] = category
-        request.meta['content'] = content
+        request.meta['content'] = ''.join(content)
         request.meta['tag'] = tag 
         request.meta['unique_name'] = unique_name
         request.meta['full_name'] = full_name
@@ -142,9 +142,30 @@ class MacbedSpider(CrawlSpider):
             link6 = ''
             link6_text = ''
 
+        content_added = '''%s<br><h3>%s</h3><br><div>
+        '''  % (content,'Download Now From FreeMac')
+
+        if link1:
+            content_added = '%s<a href="%s" target="_blank">%s</a><br> ' % (content_added,link1,link1_text)
+        if link2:
+            content_added = '%s<a href="%s" target="_blank">%s</a><br> ' % (content_added,link2,link2_text)
+            
+        if link3:
+            content_added = '%s<a href="%s" target="_blank">%s</a><br>' % (content_added,link3,link3_text)
+        if link4:
+            content_added = '%s<a href="%s" target="_blank">%s</a><br>' % (content_added,link4,link4_text)
+
+        if link5:
+            content_added = '%s<a href="%s" target="_blank">%s</a><br>' % (content_added,link5,link5_text)
+        if link6:
+            content_added = '%s<a href="%s" target="_blank">%s</a><br>' % (content_added,link6,link6_text)
+
+        content_added = '%s%s' % (content_added,'</div>')
+
+
         item['unique_name'] = unique_name
         item['full_name'] = full_name
-        item['content'] = content
+        item['content'] = content_added
         item['category'] = category
 
         item['link1'] = link1
