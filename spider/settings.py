@@ -65,9 +65,9 @@ ROBOTSTXT_OBEY = True
 # Configure item pipelines
 # See http://scrapy.readthedocs.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
-    'spider.pipelines.SpiderPipeline': 1,
 #    'scrapy.pipelines.files.FilesPipeline': 1,
-    'scrapy.pipelines.images.ImagesPipeline':1,
+#    'scrapy.pipelines.images.ImagesPipeline':1,
+    'spider.pipelines.SpiderPipeline': 1,
 }
 
 IMAGES_URLS_FIELD = "screen_urls"

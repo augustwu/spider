@@ -69,8 +69,6 @@ class SpiderPipeline(object):
 
         self.cursor.execute(update_sql)
         self.db.commit()
-        print new_id,last_id,guid
-        print 'ffffffffffffffffff'
         return last_id
         
 
@@ -86,8 +84,6 @@ class SpiderPipeline(object):
       	self.db.commit()
 
       	last_id =   int(self.cursor.lastrowid)
-        print last_id,
-        print 'kkkkkkkkkkk'
       	return last_id
         
         
@@ -115,13 +111,17 @@ class SpiderPipeline(object):
     
     def insert_wp_term_relationships(self,object_id,term_taxonomy_id):
         sql = "insert into wp_term_relationships(object_id,term_taxonomy_id) values (%s,%s)" % (object_id,term_taxonomy_id)
-        print sql
         self.cursor.execute(sql)
         self.db.commit()
 
+    
+    def get_term_taxomomy_id(self,category,type):
+        sql = "select * from wp_term_taxonomy where term_id=%s and taxonomy='%s'" % (category,type)
+        self.cursor.execute(sql)
+        return self.cursor.fetchone()[0]
+
     def process_item(self, item, spider):
         title = item.get('full_name')
-        print title
         category_list = item.get('category')
         post_name = item.get('unique_name').replace(' ','-').replace('.','-')
         
@@ -147,13 +147,11 @@ class SpiderPipeline(object):
             if category_id:
                 try:
                     term_taxonomy_id = self.insert_term_taxonomy_tag(category_id,'category')
-                    print item_id,category,category_id,term_taxonomy_id
                 except MySQLdb.IntegrityError,e:
                     print e
-                    print '~~~~~~~~'
-                    pass
+                    term_taxonomy_id = self.get_term_taxomomy_id(category_id,'category')
+                    
                 
-                print '~~~~~~~~'
                 self.insert_wp_term_relationships(item_id,term_taxonomy_id)
 
         for tag in tag_list:
@@ -165,12 +163,10 @@ class SpiderPipeline(object):
             if tag_id:
                 try:
                     term_taxonomy_id =  self.insert_term_taxonomy_tag(tag_id,'post_tag')
-                    print item_id,tag,tag_id,term_taxonomy_id
                 except MySQLdb.IntegrityError,e:
                     print e
-                    pass
+                    term_taxonomy_id = self.get_term_taxomomy_id(tag_id,'post_tag')
                 
-                print '-----------------'
                 self.insert_wp_term_relationships(item_id,term_taxonomy_id)
       
         

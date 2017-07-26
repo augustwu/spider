@@ -43,7 +43,8 @@ class MacbedSpider(CrawlSpider):
         sel = Selector(response)
 
         urls = sel.xpath('//div[contains(@class, "entry")]//h2//a/@href')
-        for url in urls[:4]:
+        print len(urls)
+        for url in urls[:10]:
             yield Request(url.extract(), callback=self.parse_product, meta={
                 'splash': {
                     'args': {'wait': 0.5}},
@@ -56,10 +57,10 @@ class MacbedSpider(CrawlSpider):
         
         item = SpiderItem()
 
-        self.category = sel.xpath('//div[contains(@class, "entry")]//div[contains(@class,"desc")]//a/text()')[1:].extract()
-        self.tag = sel.xpath('//div[contains(@class, "entry")]//div[contains(@class,"tag")]//a/text()').extract()
-        self.content = sel.xpath('//div[contains(@class, "article")]//div[contains(@class,"text")]//p|//div[contains(@class, "article")]//div[contains(@class,"text")]//ul|//div[contains(@class, "article")]//div[contains(@class,"text")]//h5|//div[contains(@class, "article")]//div[contains(@class,"text")]//h3[position() < 2]|//div[contains(@class, "article")]//div[contains(@class,"text")]//br')[1:].extract()
-        self.content = sel.xpath('//div[contains(@class, "article")]//div[contains(@class,"text")]/*[not(@id="div-gpt-ad-1462783699686-0" or @class="appdl"  or self::a or self::script or @class="alignright" or @id="appked_link_39590")]')[1:].extract()
+        category = sel.xpath('//div[contains(@class, "entry")]//div[contains(@class,"desc")]//a/text()')[1:].extract()
+        tag = sel.xpath('//div[contains(@class, "entry")]//div[contains(@class,"tag")]//a/text()').extract()
+        content = sel.xpath('//div[contains(@class, "article")]//div[contains(@class,"text")]//p|//div[contains(@class, "article")]//div[contains(@class,"text")]//ul|//div[contains(@class, "article")]//div[contains(@class,"text")]//h5|//div[contains(@class, "article")]//div[contains(@class,"text")]//h3[position() < 2]|//div[contains(@class, "article")]//div[contains(@class,"text")]//br')[1:].extract()
+        content = sel.xpath('//div[contains(@class, "article")]//div[contains(@class,"text")]/*[not(@id="div-gpt-ad-1462783699686-0" or @class="appdl"  or self::a or self::script or @class="alignright" or @id="appked_link_39590")]')[1:].extract()
 
         what_new = sel.xpath('//div[contains(@class, "article")]//div[contains(@class,"text")]//p|//div[contains(@class, "article")]//div[contains(@class,"text")]//ul|//div[contains(@class, "article")]//div[contains(@class,"text")]//h3')[1:].extract()
 
@@ -69,24 +70,51 @@ class MacbedSpider(CrawlSpider):
         name = sel.xpath('//div[contains(@class, "entry")]//h2//a/text()').extract()
 		
 		
-        self.unique_name = name[0].replace(u'\u2013', '-').split('-')[0].strip()
-        self.full_name = name[0].replace(u'\u2013', '-')
+        unique_name = name[0].replace(u'\u2013', '-').split('-')[0].strip()
+        full_name = name[0].replace(u'\u2013', '-')
         
-        print self.full_name	
 
-        self.image_urls = sel.xpath('//div[contains(@class, "article")]//div[contains(@class,"text")]//p//img/@src').extract()
+        image_urls = sel.xpath('//div[contains(@class, "article")]//div[contains(@class,"text")]//p//img/@src').extract()
 
-        self.file_urls  = sel.xpath('//div[contains(@class, "article")]//div[contains(@class,"text")]//img[1]').extract()
-        self.screen_urls = ['http:%s'  % sel.xpath('//div[contains(@class, "article")]//div[contains(@class,"text")]//img/@src')[-2].extract()]
-
-        return [Request(download_url.extract()[0], callback=self.parse_link, meta={
+        file_urls  = sel.xpath('//div[contains(@class, "article")]//div[contains(@class,"text")]//img[1]').extract()
+        screen_urls = sel.xpath('//div[contains(@class, "article")]//div[contains(@class,"text")]//img/@src')[-2].extract()
+        if screen_urls.startswith('http'):
+            screen_urls = ['%s' % screen_urls]
+        else:
+            screen_urls = ['http:%s' % screen_urls]
+        
+        request =  Request(download_url.extract()[0], callback=self.parse_link, meta={
             'splash': {
                 'args': {'wait': 0.5}},
-        })]
+        })
+        
+        request.meta['category'] = category
+        request.meta['content'] = content
+        request.meta['tag'] = tag 
+        request.meta['unique_name'] = unique_name
+        request.meta['full_name'] = full_name
+        request.meta['image_urls'] = image_urls
+        request.meta['file_urls'] = file_urls
+        request.meta['screen_urls'] =screen_urls
+
+        return request
 
     def parse_link(self,response):
 
         item = SpiderItem()
+
+        unique_name = response.meta['unique_name']
+        full_name = response.meta['full_name']
+        content = response.meta['content']
+        category = response.meta['category']
+        
+        file_urls = response.meta['file_urls']
+        screen_urls = response.meta['screen_urls']
+        image_urls = response.meta['image_urls']
+        tag = response.meta['tag']
+
+        print unique_name
+        print '------'
         sel = Selector(response)
 
         link1 = sel.xpath('//div[contains(@class, "downloadlink")]//a/@href')[0].extract()
@@ -114,10 +142,10 @@ class MacbedSpider(CrawlSpider):
             link6 = ''
             link6_text = ''
 
-        item['unique_name'] = self.unique_name
-        item['full_name'] = self.full_name
-        item['content'] = self.content
-        item['category'] = self.category
+        item['unique_name'] = unique_name
+        item['full_name'] = full_name
+        item['content'] = content
+        item['category'] = category
 
         item['link1'] = link1
         item['link1_text'] = link1_text
@@ -135,11 +163,11 @@ class MacbedSpider(CrawlSpider):
 
         item['link6'] = link6
         item['link6_text'] = link6_text
-        item['image_urls'] = self.image_urls
-        item['file_urls'] = self.file_urls
+        item['image_urls'] =image_urls
+        item['file_urls'] = file_urls
         
-        item['screen_urls'] =  self.screen_urls
-        item['tag'] = self.tag
+        item['screen_urls'] =  screen_urls
+        item['tag'] = tag
         return item
 
 
