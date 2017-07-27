@@ -61,7 +61,7 @@ class SpiderPipeline(object):
         post_excerpt = item.get('unique_name')[:50]
         post_name = item.get('unique_name').replace(' ','-').replace('.','-')
 
-        self.cursor.execute(sql, (1,content,post_title, post_excerpt,post_name,'post','','','',datetime.now(),datetime.now(),datetime.now(),datetime.now(),'publish'))
+        self.cursor.execute(sql, (1,content,post_title, content[:50],post_name,'post','','','',datetime.now(),datetime.now(),datetime.now(),datetime.now(),'publish'))
 
         self.db.commit()
         last_id =   int(self.cursor.lastrowid)

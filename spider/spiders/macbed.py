@@ -145,8 +145,6 @@ class MacbedSpider(CrawlSpider):
         content_added = '''%s<br><h3>%s</h3><br><div>
         '''  % (content,'Download Now From FreeMac')
 
-        if link1:
-            content_added = '%s<a href="%s" target="_blank">%s</a><br> ' % (content_added,link1,link1_text)
         if link2:
             content_added = '%s<a href="%s" target="_blank">%s</a><br> ' % (content_added,link2,link2_text)
             
@@ -159,6 +157,8 @@ class MacbedSpider(CrawlSpider):
             content_added = '%s<a href="%s" target="_blank">%s</a><br>' % (content_added,link5,link5_text)
         if link6:
             content_added = '%s<a href="%s" target="_blank">%s</a><br>' % (content_added,link6,link6_text)
+        if link1:
+            content_added = '%s<a href="%s" target="_blank">%s</a><br> ' % (content_added,link1,link1_text)
 
         content_added = '%s%s' % (content_added,'</div>')
 
