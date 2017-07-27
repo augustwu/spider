@@ -23,8 +23,6 @@ class SpiderPipeline(object):
         item = self.cursor.fetchone()[0]
         return item 
     
-    def exists_tag(self,tag):
-        sql = "select count(0) from "
 
     def get_max_id(self,table):
         sql  = "select id from %s order by id desc limit 1" % table
@@ -32,6 +30,12 @@ class SpiderPipeline(object):
         item = self.cursor.fetchone()[0]
         return item
         
+      
+    def insert_post_media(self,post_id,meta_value):
+        sql = "insert into wp_postmeta(post_id,meta_key,meta_value) values ('%s','%s','%s')" % (post_id,'_wp_attached_file',meta_value)
+        self.cursor.execute(sql)
+        self.db.commit()
+
     def get_item(self,item):
         print item.get('full_name')
         print '==============999999999=='
