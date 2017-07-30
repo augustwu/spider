@@ -14,6 +14,7 @@ class SpiderItem(scrapy.Item):
     full_name= scrapy.Field()
     content = scrapy.Field()
     tag = scrapy.Field()
+    post_time = scrapy.Field()
 
     category = scrapy.Field()
     

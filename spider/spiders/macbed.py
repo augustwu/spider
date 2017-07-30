@@ -34,18 +34,17 @@ class MacbedSpider(CrawlSpider):
         sel = Selector(response)
         last_page = int(sel.xpath('//a[contains(@class,"page-numbers")]//text()')[-2].extract())
  
-        for url in range(1,3):
+        for index,url in enumerate(range(1,last_page)):
             next_url =  "https://www.macbed.com/page/%s/" % str(url)
-            yield Request(next_url, callback=self.parse_results)
+            yield Request(next_url, callback=self.parse_results,priority=index)
 
 
     def parse_results(self,response):
         sel = Selector(response)
 
         urls = sel.xpath('//div[contains(@class, "entry")]//h2//a/@href')
-        print len(urls)
-        for url in urls[:10]:
-            yield Request(url.extract(), callback=self.parse_product, meta={
+        for index,url in enumerate(urls):
+            yield Request(url.extract(), callback=self.parse_product,priority=index, meta={
                 'splash': {
                     'args': {'wait': 0.5}},
                 'url': url.extract()
@@ -72,6 +71,9 @@ class MacbedSpider(CrawlSpider):
 		
         unique_name = name[0].replace(u'\u2013', '-').split('-')[0].strip()
         full_name = name[0].replace(u'\u2013', '-')
+        post_time = sel.xpath('//div[contains(@class, "entry")]//div[contains(@class,"desc")]/text()')[-1].extract().strip()[3:]
+        print post_time
+        print '======='
         
 
         image_urls = sel.xpath('//div[contains(@class, "article")]//div[contains(@class,"text")]//p//img/@src').extract()
@@ -96,6 +98,7 @@ class MacbedSpider(CrawlSpider):
         request.meta['image_urls'] = image_urls
         request.meta['file_urls'] = file_urls
         request.meta['screen_urls'] =screen_urls
+        request.meta['post_time'] = post_time
 
         return request
 
@@ -108,6 +111,7 @@ class MacbedSpider(CrawlSpider):
         content = response.meta['content']
         category = response.meta['category']
         
+        post_time = response.meta['post_time']
         file_urls = response.meta['file_urls']
         screen_urls = response.meta['screen_urls']
         image_urls = response.meta['image_urls']
@@ -117,22 +121,43 @@ class MacbedSpider(CrawlSpider):
         print '------'
         sel = Selector(response)
 
-        link1 = sel.xpath('//div[contains(@class, "downloadlink")]//a/@href')[0].extract()
-        link1_text = sel.xpath('//div[contains(@class, "downloadlink")]//a/text()')[0].extract()
+        try:
+            link1 = sel.xpath('//div[contains(@class, "downloadlink")]//a/@href')[0].extract()
+            link1_text = sel.xpath('//div[contains(@class, "downloadlink")]//a/text()')[0].extract()
+        except IndexError,e:
+            link1 = ''
+            link1_text = ''
+            f = open('no_link.html','a')
+            f.write('%s\n' % full_name)
+            f.close()
+        
+        try:
+            link2 = sel.xpath('//div[contains(@class, "downloadlink")]//a/@href')[1].extract()
+            link2_text = sel.xpath('//div[contains(@class, "downloadlink")]//a/text()')[1].extract()
+        except:
+            link2 = ''
+            link2_text = ''
+        try:
+            link3 = sel.xpath('//div[contains(@class, "downloadlink")]//a/@href')[2].extract()
+            link3_text = sel.xpath('//div[contains(@class, "downloadlink")]//a/text()')[2].extract()
+        except:
+            link3 = ''
+            link3_text = ''
 
+        try:
+            link4 = sel.xpath('//div[contains(@class, "downloadlink")]//a/@href')[3].extract()
+            link4_text = sel.xpath('//div[contains(@class, "downloadlink")]//a/text()')[3].extract()
 
-        link2 = sel.xpath('//div[contains(@class, "downloadlink")]//a/@href')[1].extract()
-        link2_text = sel.xpath('//div[contains(@class, "downloadlink")]//a/text()')[1].extract()
+        except:
+            link4 = ''
+            link4_text = ''
+        try:
+            link5 = sel.xpath('//div[contains(@class, "downloadlink")]//a/@href')[4].extract()
+            link5_text = sel.xpath('//div[contains(@class, "downloadlink")]//a/text()')[4].extract()
+        except IndexError,e:
 
-        link3 = sel.xpath('//div[contains(@class, "downloadlink")]//a/@href')[2].extract()
-        link3_text = sel.xpath('//div[contains(@class, "downloadlink")]//a/text()')[2].extract()
-
-
-        link4 = sel.xpath('//div[contains(@class, "downloadlink")]//a/@href')[3].extract()
-        link4_text = sel.xpath('//div[contains(@class, "downloadlink")]//a/text()')[3].extract()
-
-        link5 = sel.xpath('//div[contains(@class, "downloadlink")]//a/@href')[4].extract()
-        link5_text = sel.xpath('//div[contains(@class, "downloadlink")]//a/text()')[4].extract()
+            link5 = ''
+            link5_text = ''
         
         try:
             link6 = sel.xpath('//div[contains(@class, "downloadlink")]//a/@href')[5].extract()
@@ -160,35 +185,39 @@ class MacbedSpider(CrawlSpider):
         if link1:
             content_added = '%s<a href="%s" target="_blank">%s</a><br> ' % (content_added,link1,link1_text)
 
-        content_added = '%s%s' % (content_added,'</div>')
-
-
-        item['unique_name'] = unique_name
-        item['full_name'] = full_name
-        item['content'] = content_added
-        item['category'] = category
-
-        item['link1'] = link1
-        item['link1_text'] = link1_text
-        item['link2'] = link2
-        item['link2_text'] = link2_text
-
-        item['link3'] = link3
-        item['link3_text'] = link3_text
-
-        item['link4'] = link4
-        item['link4_text'] = link4_text
-
-        item['link5'] = link5
-        item['link5_text'] = link5_text
-
-        item['link6'] = link6
-        item['link6_text'] = link6_text
-        item['image_urls'] =image_urls
-        item['file_urls'] = file_urls
         
-        item['screen_urls'] =  screen_urls
-        item['tag'] = tag
-        return item
+        content_added = '%s%s' % (content_added,'</div>')
+            
+        if (link1 == '' and link2 =='' and link3 =='' and link4 =='' and link5 =='' and link6 ==''):
+            return None 
+        else:
+            item['unique_name'] = unique_name
+            item['full_name'] = full_name
+            item['content'] = content_added
+            item['category'] = category
+
+            item['link1'] = link1
+            item['link1_text'] = link1_text
+            item['link2'] = link2
+            item['link2_text'] = link2_text
+
+            item['link3'] = link3
+            item['link3_text'] = link3_text
+
+            item['link4'] = link4
+            item['link4_text'] = link4_text
+
+            item['link5'] = link5
+            item['link5_text'] = link5_text
+
+            item['link6'] = link6
+            item['link6_text'] = link6_text
+            item['image_urls'] =image_urls
+            item['file_urls'] = file_urls
+            
+            item['screen_urls'] =  screen_urls
+            item['tag'] = tag
+            item['post_time'] = post_time
+            return item
 
 

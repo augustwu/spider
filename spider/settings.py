@@ -66,15 +66,19 @@ ROBOTSTXT_OBEY = True
 # See http://scrapy.readthedocs.org/en/latest/topics/item-pipeline.html
 ITEM_PIPELINES = {
 #    'scrapy.pipelines.files.FilesPipeline': 1,
-#    'scrapy.pipelines.images.ImagesPipeline':1,
-    'spider.pipelines.SpiderPipeline': 1,
+    'spider.pipelines.SpiderPipeline': 2,
+    'scrapy.pipelines.images.ImagesPipeline':1,
 }
 
-IMAGES_URLS_FIELD = "screen_urls"
-IMAGES_RESULT_FIELD = "screens"
+#IMAGES_URLS_FIELD = "screen_urls"
+#IMAGES_RESULT_FIELD = "screens"
 
 import os
-IMAGES_STORE = os.path.join(os.getcwd(),'logo')
+from datetime import datetime
+IMAGES_STORE = os.path.join('/var/www/html/wp-content/uploads/',str(datetime.now().year),str(datetime.now().strftime('%m')))
+#IMAGES_STORE = os.path.join(os.getcwd(),'logo')
+
+print IMAGES_STORE
 FILES_STORE =  os.path.join(os.getcwd(),'screen')
 
 # Enable and configure the AutoThrottle extension (disabled by default)
