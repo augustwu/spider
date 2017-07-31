@@ -12,7 +12,7 @@ from datetime import datetime
 import time
 #mysql_con  = MySQLdb.connect(host='localhost',user='hiveuser',passwd='123456',db='wp')
 mysql_con  = MySQLdb.connect(host='localhost',user='root',passwd='1',db='wp_2')
-ip = 'http://192.168.1.9'
+ip = 'http://192.168.3.50'
 
 class SpiderPipeline(object):
 
@@ -66,8 +66,9 @@ class SpiderPipeline(object):
 
         content = ''.join(item.get('content')).replace(u'\u2013', '-').replace(u'\u2019',',').replace(u'\xae','@')
         post_title = item.get('full_name')
-        post_excerpt = item.get('unique_name')[:200]
-        post_name = item.get('unique_name').replace(' ','-').replace('.','-')
+        post_excerpt = item.get('unique_name')[:200].split(']')[-1]
+        post_name = item.get('unique_name').split(']')[-1].replace(' ','-').replace('.','-')
+
         post_time = item.get('post_time')
         print post_time
         print '~~~~~~~~~'

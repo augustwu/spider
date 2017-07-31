@@ -190,6 +190,8 @@ class MacbedSpider(CrawlSpider):
             
         if (link1 == '' and link2 =='' and link3 =='' and link4 =='' and link5 =='' and link6 ==''):
             return None 
+        if category.find('LIMIT') != -1: 
+            return None
         else:
             item['unique_name'] = unique_name
             item['full_name'] = full_name
