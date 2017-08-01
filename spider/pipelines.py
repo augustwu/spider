@@ -93,7 +93,7 @@ class SpiderPipeline(object):
         return self.cursor.fetchone()[0]
 
     def insert_category_tag(self,category):
-        sql = "insert into wp_terms(name,slug) values('%s','%s')" % (category,category)
+        sql = 'insert into wp_terms(name,slug) values"%s","%s")' % (category,category)
         self.cursor.execute(sql)
       	self.db.commit()
 
@@ -136,7 +136,7 @@ class SpiderPipeline(object):
     def process_item(self, item, spider):
         title = item.get('full_name')
         category_list = item.get('category')
-        post_name = item.get('unique_name').replace(' ','-').replace('.','-')
+        post_name = item.get('unique_name').split(']')[-1].replace(' ','-').replace('.','-')
         
         if_exist = self.exists_item(post_name)
         
@@ -154,9 +154,9 @@ class SpiderPipeline(object):
         #self.insert_post_media(media_id,logo)
         #print logo,logo_name,item_id,media_id
 
-        time.sleep(2)  
+        #time.sleep(2)  
         for category in category_list:
-            category ='-'.join( category.replace('&','').split(' ')).replace('--','-')
+            category ='-'.join( category.replace('&','').split(' ')).replace('--','-').replace("'",'')
       	    if not self.exists_category_tag(category):
                 self.insert_category_tag(category)
 
@@ -173,7 +173,7 @@ class SpiderPipeline(object):
                 self.insert_wp_term_relationships(item_id,term_taxonomy_id)
 
         for tag in tag_list:
-            tag ='-'.join( tag.replace('&','').split(' ')).replace('--','-')
+            tag ='-'.join( tag.replace('&','').split(' ')).replace('--','-').replace("'",'')
             if not self.exists_category_tag(tag):
                 self.insert_category_tag(tag)
 
