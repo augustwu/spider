@@ -69,6 +69,8 @@ ITEM_PIPELINES = {
     'spider.pipelines.SpiderPipeline': 2,
     'scrapy.pipelines.images.ImagesPipeline':1,
 }
+CONCURRENT_REQUESTS = 100
+
 
 #IMAGES_URLS_FIELD = "screen_urls"
 #IMAGES_RESULT_FIELD = "screens"
