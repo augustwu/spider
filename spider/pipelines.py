@@ -13,6 +13,7 @@ import time
 #mysql_con  = MySQLdb.connect(host='localhost',user='hiveuser',passwd='123456',db='wp')
 mysql_con  = MySQLdb.connect(host='localhost',user='root',passwd='1',db='wp_2')
 ip = 'http://192.168.3.50'
+from rpc_invoke import Custom_WP_XMLRPC
 
 class SpiderPipeline(object):
 
@@ -137,15 +138,27 @@ class SpiderPipeline(object):
         title = item.get('full_name')
         category_list = item.get('category')
         post_name = item.get('unique_name').split(']')[-1].replace(' ','-').replace('.','-')
+        content = ''.join(item.get('content')).replace(u'\u2013', '-').replace(u'\u2019',',').replace(u'\xae','@')
+        post_title = item.get('full_name')
+        post_excerpt = item.get('unique_name')[:200].split(']')[-1]
+        post_name = item.get('unique_name').split(']')[-1].replace(' ','-').replace('.','-')
+        
+        logo = item.get('image_urls')[0]    
+        post_time = item.get('post_time')
         
         if_exist = self.exists_item(post_name)
         
         tag_list = item.get('tag')
         item_id = None
-        if not if_exist:
-            item_id = self.insert_item(item)
-        else:
-            item_id = self.get_item(item)
+        #if not if_exist:
+            #item_id = self.insert_item(item)
+        xmlrpc_object   = Custom_WP_XMLRPC()
+        print xmlrpc_object
+
+        item_id = xmlrpc_object.post_article("http://192.168.1.9/xmlrpc.php","wu","1",title, category_list, content, tag_list,logo)
+
+        #else:
+        #    item_id = self.get_item(item)
         
         #logo = item.get('images')[0].get('path')
         #logo_name = full_logo.split('/')[-1].split('.')[0]

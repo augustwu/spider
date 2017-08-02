@@ -41,14 +41,15 @@ contact@waqasjamal.com
 '''
 class Custom_WP_XMLRPC:
     def post_article(self,wpUrl,wpUserName,wpPassword,articleTitle, articleCategories, articleContent, articleTags,PhotoUrl):
-        self.path=os.path.join(os.getcwd(),"00000001.jpg")
+        self.path=os.path.join(os.getcwd(),"00000001.png")
         self.articlePhotoUrl=PhotoUrl
         self.wpUrl=wpUrl
         self.wpUserName=wpUserName
         self.wpPassword=wpPassword
         #Download File
+        print self.articlePhotoUrl
         r = requests.get(self.articlePhotoUrl)
-        with open('test.jpg', "wb") as f:
+        with open('test.png', "wb") as f:
             f.write(r.content)
         #f = open(self.path,'w')
         #f.write(urllib.urlopen(self.articlePhotoUrl).read())
@@ -58,12 +59,14 @@ class Custom_WP_XMLRPC:
         client = Client(self.wpUrl,self.wpUserName,self.wpPassword)
         filename = self.path
         # prepare metadata
-        data = {'name': 'picture.jpg','type': 'image/jpg',}
+        data = {'name': 'picture.png','type': 'image/png',}
         
         # read the binary file and let the XMLRPC library encode it into base64
+        print filename
         with open(filename, 'rb') as img:
         	data['bits'] = xmlrpc_client.Binary(img.read())
         response = client.call(media.UploadFile(data))
+        print 'aaaaaaaaaaaa'
         attachment_id = response['id']
         #Post
         post = WordPressPost()
@@ -102,6 +105,6 @@ articleCategories=['language','art']
 #########################################
 # Creating Class object & calling the xml rpc custom post Function
 #########################################
-xmlrpc_object	=	Custom_WP_XMLRPC()
+#xmlrpc_object	=	Custom_WP_XMLRPC()
 #On Post submission this function will print the post id
-xmlrpc_object.post_article(wpUrl,wpUserName,wpPassword,articleTitle, articleCategories, articleContent, articleTags,ariclePhotoUrl)
+#xmlrpc_object.post_article(wpUrl,wpUserName,wpPassword,articleTitle, articleCategories, articleContent, articleTags,ariclePhotoUrl)
