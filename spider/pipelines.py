@@ -93,7 +93,7 @@ class SpiderPipeline(object):
         return self.cursor.fetchone()[0]
 
     def insert_category_tag(self,category):
-        sql = 'insert into wp_terms(name,slug) values"%s","%s")' % (category,category)
+        sql = 'insert into wp_terms(name,slug) values("%s","%s")' % (category,category)
         self.cursor.execute(sql)
       	self.db.commit()
 
