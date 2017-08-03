@@ -5,6 +5,7 @@ import xmlrpclib
 from wordpress_xmlrpc.compat import xmlrpc_client
 from wordpress_xmlrpc.methods import media, posts
 import os
+import datetime
 import requests
 ########################### Read Me First ###############################
 '''
@@ -40,7 +41,7 @@ contact@waqasjamal.com
 ------------------------------------------In DETAIL--------------------------------		
 '''
 class Custom_WP_XMLRPC:
-    def post_article(self,wpUrl,wpUserName,wpPassword,articleTitle, articleCategories, articleContent, articleTags,PhotoUrl):
+    def post_article(self,wpUrl,wpUserName,wpPassword,articleTitle, articleCategories, articleContent, articleTags,PhotoUrl,date,logo_name,post_name):
         self.path=os.path.join(os.getcwd(),"00000001.jpg")
         self.articlePhotoUrl=PhotoUrl
         self.wpUrl=wpUrl
@@ -55,18 +56,16 @@ class Custom_WP_XMLRPC:
         from StringIO import StringIO
         im = Image.open(StringIO(r.content))
         rgb_im = im.convert('RGB')
-        self.path = os.path.join(os.getcwd(),'colors.jpg')
+        self.path = os.path.join(os.getcwd(),logo_name)
         rgb_im.save(self.path)
 
-        #f = open(self.path,'w')
-        #f.write(urllib.urlopen(self.articlePhotoUrl).read())
-        #f.close()
-        print self.path
         #Upload to WordPress
         client = Client(self.wpUrl,self.wpUserName,self.wpPassword)
         filename = self.path
+        
+
         # prepare metadata
-        data = {'name': 'picture.jpg','type': 'image/jpeg',}
+        data = {'name': logo_name,'type': 'image/jpeg'}
         
         # read the binary file and let the XMLRPC library encode it into base64
         print filename
@@ -78,11 +77,18 @@ class Custom_WP_XMLRPC:
         #Post
         post = WordPressPost()
         post.title = articleTitle
+
+        post.date = datetime.datetime.strptime(date, "%Y-%m-%d %H:%M")
+        post.date_modified = datetime.datetime.strptime(date, "%Y-%m-%d %H:%M")
+        post.slug = post_name 
+        post.comment_status ="open"
+        
         post.content = articleContent
         post.terms_names = { 'post_tag': articleTags,'category': articleCategories}
         post.post_status = 'publish'
         post.thumbnail = attachment_id
         post.id = client.call(posts.NewPost(post))
+        
         print 'Post Successfully posted. Its Id is: ',post.id
 
 
@@ -95,7 +101,7 @@ class Custom_WP_XMLRPC:
 #Url of Image on the internet
 ariclePhotoUrl='http://i1.tribune.com.pk/wp-content/uploads/2013/07/584065-twitter-1375197036-960-640x480.jpg' 
 # Dont forget the /xmlrpc.php cause thats your posting adress for XML Server
-wpUrl='http://192.168.1.9/xmlrpc.php' 
+wpUrl='http://192.168.3.50/xmlrpc.php' 
 #WordPress Username
 wpUserName='wu'
 #WordPress Password

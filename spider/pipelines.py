@@ -13,6 +13,8 @@ import time
 #mysql_con  = MySQLdb.connect(host='localhost',user='hiveuser',passwd='123456',db='wp')
 mysql_con  = MySQLdb.connect(host='localhost',user='root',passwd='1',db='wp_2')
 ip = 'http://192.168.3.50'
+username = 'wu'
+passwd = '1'
 from rpc_invoke import Custom_WP_XMLRPC
 
 class SpiderPipeline(object):
@@ -145,17 +147,17 @@ class SpiderPipeline(object):
         
         logo = item.get('image_urls')[0]    
         post_time = item.get('post_time')
+        logo_name = logo.split('/')[-1]
         
         if_exist = self.exists_item(post_name)
         
         tag_list = item.get('tag')
         item_id = None
-        #if not if_exist:
-            #item_id = self.insert_item(item)
         xmlrpc_object   = Custom_WP_XMLRPC()
-        print xmlrpc_object
 
-        item_id = xmlrpc_object.post_article("http://192.168.1.9/xmlrpc.php","wu","1",title, category_list, content, tag_list,logo)
+        if not if_exist:
+            #item_id = self.insert_item(item)
+            item_id = xmlrpc_object.post_article(ip+"/xmlrpc.php",username,passwd,title, category_list, content, tag_list,logo,post_time,logo_name,post_name)
 
         #else:
         #    item_id = self.get_item(item)
@@ -168,37 +170,37 @@ class SpiderPipeline(object):
         #print logo,logo_name,item_id,media_id
 
         #time.sleep(2)  
-        for category in category_list:
-            category ='-'.join( category.replace('&','').split(' ')).replace('--','-').replace("'",'')
-      	    if not self.exists_category_tag(category):
-                self.insert_category_tag(category)
+        #for category in category_list:
+        #    category ='-'.join( category.replace('&','').split(' ')).replace('--','-').replace("'",'')
+      	#    if not self.exists_category_tag(category):
+        #        self.insert_category_tag(category)
 
-            category_id = self.select_category_tag_id(category)
+        #    category_id = self.select_category_tag_id(category)
 
-            if category_id:
-                try:
-                    term_taxonomy_id = self.insert_term_taxonomy_tag(category_id,'category')
-                except MySQLdb.IntegrityError,e:
-                    print e
-                    term_taxonomy_id = self.get_term_taxomomy_id(category_id,'category')
-                    
-                
-                self.insert_wp_term_relationships(item_id,term_taxonomy_id)
+        #    if category_id:
+        #        try:
+        #            term_taxonomy_id = self.insert_term_taxonomy_tag(category_id,'category')
+        #        except MySQLdb.IntegrityError,e:
+        #            print e
+        #            term_taxonomy_id = self.get_term_taxomomy_id(category_id,'category')
+        #            
+        #        
+        #        self.insert_wp_term_relationships(item_id,term_taxonomy_id)
 
-        for tag in tag_list:
-            tag ='-'.join( tag.replace('&','').split(' ')).replace('--','-').replace("'",'')
-            if not self.exists_category_tag(tag):
-                self.insert_category_tag(tag)
+        #for tag in tag_list:
+        #    tag ='-'.join( tag.replace('&','').split(' ')).replace('--','-').replace("'",'')
+        #    if not self.exists_category_tag(tag):
+        #        self.insert_category_tag(tag)
 
-            tag_id = self.select_category_tag_id(tag)
-            if tag_id:
-                try:
-                    term_taxonomy_id =  self.insert_term_taxonomy_tag(tag_id,'post_tag')
-                except MySQLdb.IntegrityError,e:
-                    print e
-                    term_taxonomy_id = self.get_term_taxomomy_id(tag_id,'post_tag')
-                
-                self.insert_wp_term_relationships(item_id,term_taxonomy_id)
+        #    tag_id = self.select_category_tag_id(tag)
+        #    if tag_id:
+        #        try:
+        #            term_taxonomy_id =  self.insert_term_taxonomy_tag(tag_id,'post_tag')
+        #        except MySQLdb.IntegrityError,e:
+        #            print e
+        #            term_taxonomy_id = self.get_term_taxomomy_id(tag_id,'post_tag')
+        #        
+        #        self.insert_wp_term_relationships(item_id,term_taxonomy_id)
       
 
     def insert_post_image(self,item_id,logo):
