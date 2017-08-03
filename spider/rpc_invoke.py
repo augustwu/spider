@@ -41,7 +41,7 @@ contact@waqasjamal.com
 '''
 class Custom_WP_XMLRPC:
     def post_article(self,wpUrl,wpUserName,wpPassword,articleTitle, articleCategories, articleContent, articleTags,PhotoUrl):
-        self.path=os.path.join(os.getcwd(),"00000001.png")
+        self.path=os.path.join(os.getcwd(),"00000001.jpg")
         self.articlePhotoUrl=PhotoUrl
         self.wpUrl=wpUrl
         self.wpUserName=wpUserName
@@ -49,8 +49,15 @@ class Custom_WP_XMLRPC:
         #Download File
         print self.articlePhotoUrl
         r = requests.get(self.articlePhotoUrl)
-        with open('test.png', "wb") as f:
-            f.write(r.content)
+        #with open('test.jpg', "wb") as f:
+        #    f.write(r.content)
+        from PIL import Image
+        from StringIO import StringIO
+        im = Image.open(StringIO(r.content))
+        rgb_im = im.convert('RGB')
+        self.path = os.path.join(os.getcwd(),'colors.jpg')
+        rgb_im.save(self.path)
+
         #f = open(self.path,'w')
         #f.write(urllib.urlopen(self.articlePhotoUrl).read())
         #f.close()
@@ -59,7 +66,7 @@ class Custom_WP_XMLRPC:
         client = Client(self.wpUrl,self.wpUserName,self.wpPassword)
         filename = self.path
         # prepare metadata
-        data = {'name': 'picture.png','type': 'image/png',}
+        data = {'name': 'picture.jpg','type': 'image/jpeg',}
         
         # read the binary file and let the XMLRPC library encode it into base64
         print filename
