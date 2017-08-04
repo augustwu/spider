@@ -57,7 +57,7 @@ class Custom_WP_XMLRPC:
         content = r.content
         im = Image.open(StringIO(content))
         rgb_im = im.convert('RGB')
-        self.path = os.path.join(os.getcwd(),logo_name)
+        self.path = os.path.join(os.getcwd(),'image',logo_name)
         rgb_im.save(self.path)
 
         #Upload to WordPress
