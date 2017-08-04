@@ -12,7 +12,7 @@ from datetime import datetime
 import time
 #mysql_con  = MySQLdb.connect(host='localhost',user='hiveuser',passwd='123456',db='wp')
 mysql_con  = MySQLdb.connect(host='localhost',user='root',passwd='1',db='wp_2')
-ip = 'http://192.168.3.50'
+ip = 'http://192.168.1.9'
 username = 'wu'
 passwd = '1'
 from rpc_invoke import Custom_WP_XMLRPC

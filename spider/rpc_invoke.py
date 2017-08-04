@@ -49,12 +49,13 @@ class Custom_WP_XMLRPC:
         self.wpPassword=wpPassword
         #Download File
         print self.articlePhotoUrl
-        r = requests.get(self.articlePhotoUrl)
+        r = requests.get(self.articlePhotoUrl,headers={'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.6; rv:16.0) Gecko/20100101 Firefox/16.0,gzip(gfe)'})
         #with open('test.jpg', "wb") as f:
         #    f.write(r.content)
         from PIL import Image
         from StringIO import StringIO
-        im = Image.open(StringIO(r.content))
+        content = r.content
+        im = Image.open(StringIO(content))
         rgb_im = im.convert('RGB')
         self.path = os.path.join(os.getcwd(),logo_name)
         rgb_im.save(self.path)
@@ -101,7 +102,7 @@ class Custom_WP_XMLRPC:
 #Url of Image on the internet
 ariclePhotoUrl='http://i1.tribune.com.pk/wp-content/uploads/2013/07/584065-twitter-1375197036-960-640x480.jpg' 
 # Dont forget the /xmlrpc.php cause thats your posting adress for XML Server
-wpUrl='http://192.168.3.50/xmlrpc.php' 
+wpUrl='http://192.168.1.9/xmlrpc.php' 
 #WordPress Username
 wpUserName='wu'
 #WordPress Password
