@@ -172,19 +172,19 @@ class MacbedSpider(CrawlSpider):
         '''  % (content,'Download Now From FreeMac')
 
         if link2:
-            content_added = '%s<a href="%s" target="_blank">%s</a><br> ' % (content_added,link2,link2_text)
+            content_added = '%s<a class="btn btn-small  btn-block" href="%s" target="_blank">%s</a><br> ' % (content_added,link2,link2_text)
             
         if link3:
-            content_added = '%s<a href="%s" target="_blank">%s</a><br>' % (content_added,link3,link3_text)
+            content_added = '%s<a class="btn btn-small  btn-block"  href="%s" target="_blank">%s</a><br>' % (content_added,link3,link3_text)
         if link4:
-            content_added = '%s<a href="%s" target="_blank">%s</a><br>' % (content_added,link4,link4_text)
+            content_added = '%s<a class="btn btn-small  btn-block"  href="%s" target="_blank">%s</a><br>' % (content_added,link4,link4_text)
 
         if link5:
-            content_added = '%s<a href="%s" target="_blank">%s</a><br>' % (content_added,link5,link5_text)
+            content_added = '%s<a class="btn btn-small  btn-block"  href="%s" target="_blank">%s</a><br>' % (content_added,link5,link5_text)
         if link6:
-            content_added = '%s<a href="%s" target="_blank">%s</a><br>' % (content_added,link6,link6_text)
+            content_added = '%s<a class="btn btn-small  btn-block"  href="%s" target="_blank">%s</a><br>' % (content_added,link6,link6_text)
         if link1:
-            content_added = '%s<a href="%s" target="_blank">%s</a><br> ' % (content_added,link1,link1_text)
+            content_added = '%s<a class="btn btn-small  btn-block"  href="%s" target="_blank">%s</a><br> ' % (content_added,link1,link1_text)
 
         
         content_added = '%s%s' % (content_added,'</div>')
