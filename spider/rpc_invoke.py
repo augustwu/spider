@@ -58,6 +58,7 @@ class Custom_WP_XMLRPC:
         im = Image.open(StringIO(content))
         rgb_im = im.convert('RGB')
         self.path = os.path.join(os.getcwd(),'image',logo_name)
+        print self.path
         rgb_im.save(self.path)
 
         #Upload to WordPress
@@ -79,8 +80,12 @@ class Custom_WP_XMLRPC:
         post = WordPressPost()
         post.title = articleTitle
 
-        post.date = datetime.datetime.strptime(date, "%Y-%m-%d %H:%M")
-        post.date_modified = datetime.datetime.strptime(date, "%Y-%m-%d %H:%M")
+        try:
+            post.date = datetime.datetime.strptime(date, "%Y-%m-%d %H:%M")
+            post.date_modified = datetime.datetime.strptime(date, "%Y-%m-%d %H:%M")
+        except:
+            post.date = datetime.datetime.strptime(date, "%Y-%m-%d")
+            post.date_modified = datetime.datetime.strptime(date, "%Y-%m-%d")
         post.slug = post_name 
         post.comment_status ="open"
         
