@@ -7,8 +7,8 @@ from spider.items import SpiderItem
  
 
  
-class MacbedSpider(CrawlSpider):
-    name = "macbed"
+class NmacSpider(CrawlSpider):
+    name = "nmac"
     download_delay = 1
     allowed_domains = ["nmac.to","www.nmac.to"]
 
@@ -58,7 +58,7 @@ class MacbedSpider(CrawlSpider):
         item = SpiderItem()
 
         category = sel.xpath('//div[contains(@class, "category-list")]//a/text()')[-1].extract()
-        tag = sel.xpath('div[contains(@class,"post-tags")]//a/text()').extract()
+        tag = sel.xpath('//div[contains(@class,"post-tags-wrapper")]//div[contains(@class,"post-tags")]//a/text()').extract()
 
         content = sel.xpath('//div[contains(@class, "the-content")]/*[not(@class="nmac-before-content"  or self::a or self::script or @class="nmac-after-content" or @class="adsbygoogle" or @id="aswift_2_expand" or class="alert fade in alert-error" or class="wp-image-3333" or @style="text-align: center; width: 40%; margin-left: 30%;" or @style="text-align: center" or @style="text-align: center;" or  @class="alert fade in alert-error" or @style="text-align: left;" or @class="alert fade in alert-error " or @style="text-align: center; width: 100%;")]')[1:].extract()
 
@@ -67,19 +67,12 @@ class MacbedSpider(CrawlSpider):
         download_url = sel.xpath('//div[contains(@class, "the-content")]//a[contains(@class,"btn-block")]/@href').extract()
         name = sel.xpath('//div[contains(@class, "main-content")]//h1/text()').extract()
 		
-        print name	
         unique_name = name[0].replace(u'\u2013', '-').split('-')[0].strip()
-        full_name = name[0].replace(u'\u2013', '-')
-        post_time = sel.xpath('//div[contains(@class,"meta-data")]//span[contains(@class,"date")]/text()')[-1].extract().strip()[6:]
-        print post_time
-        print '======='
-        print full_name,unique_name,name,category
-        print content
+        full_name = name[0].replace(u'\u2013', '-').strip()
+        post_time = sel.xpath('//div[contains(@class,"meta-data")]//span[contains(@class,"date")]/text()')[-1].extract().split('\n')[-1].strip()
         
 
-        image_urls = sel.xpath('//div[contains(@class, "the-content")]//img[contains(@class,"size-full")]/@src')[0].extract()
-        print image_urls
-        print download_url
+        image_urls = sel.xpath('//div[contains(@class, "the-content")]//img[contains(@class,"alignright")]/@src').extract()
         #file_urls  = sel.xpath('//div[contains(@class, "article")]//div[contains(@class,"text")]//img[1]').extract()
         #screen_urls = sel.xpath('//div[contains(@class, "article")]//div[contains(@class,"text")]//img/@src')[-2].extract()
         #if screen_urls.startswith('http'):
@@ -87,24 +80,74 @@ class MacbedSpider(CrawlSpider):
         #else:
         #    screen_urls = ['http:%s' % screen_urls]
         
-        #for d_url in download_url:
-        #    request =  Request(d_url, callback=self.parse_link, meta={
-        #        'splash': {
-        #            'args': {'wait': 0.5}},
-        #    })
-        #
-        #request.meta['category'] = category
-        #request.meta['content'] = ''.join(content)
-        #request.meta['tag'] = tag 
-        #request.meta['unique_name'] = unique_name
-        #request.meta['full_name'] = full_name
-        #request.meta['image_urls'] = image_urls
-        ##request.meta['file_urls'] = file_urls
+        
+        for index,d_url in enumerate(download_url):
+            if index == 0:
+                request =  Request(d_url, callback=self.parse_download_link_1, meta={
+                    'splash': {
+                        'args': {'wait': 0.5}},
+                })
+                request.meta['item'] = item
+                yield request
+            
+            if index == 1:
+                request =  Request(d_url, callback=self.parse_download_link_2, meta={'item':item})
+                yield request
+            if index == 2:
+                request =  Request(d_url, callback=self.parse_download_link_3, meta={'item':item})
+                yield request
+            if index == 3:
+                request =  Request(d_url, callback=self.parse_download_link_4, meta={'item':item})
+                yield request
+            if index == 4:
+                request =  Request(d_url, callback=self.parse_download_link_5, meta={'item':item})
+                yield request
+                
+        content_added = '''%s<br><h3>%s</h3><br><div>
+        '''  % (content,'Download Now From FreeMac')
+        
+        
+       # print item.get('link1')
+       # print '======='
+       # if item['link1']:
+       #     content_added = '%s<a class="btn btn-small  btn-block"  href="%s" target="_blank">%s</a><br> ' % (content_added,link1,link1_text)
+       # if item['link2']:
+       #     content_added = '%s<a class="btn btn-small  btn-block" href="%s" target="_blank">%s</a><br> ' % (content_added,link2,link2_text)
+       #     
+       # if item['link3']:
+       #     content_added = '%s<a class="btn btn-small  btn-block"  href="%s" target="_blank">%s</a><br>' % (content_added,link3,link3_text)
+       # if item['link4']:
+       #     content_added = '%s<a class="btn btn-small  btn-block"  href="%s" target="_blank">%s</a><br>' % (content_added,link4,link4_text)
 
-        ##request.meta['screen_urls'] =screen_urls
-        #request.meta['post_time'] = post_time
+       # if item['link5']:
+       #     content_added = '%s<a class="btn btn-small  btn-block"  href="%s" target="_blank">%s</a><br>' % (content_added,link5,link5_text)
 
-        return request
+        
+       # content_added = '%s%s' % (content_added,'</div>')
+        item['unique_name'] = unique_name
+        item['full_name'] = full_name
+        item['content'] = content 
+        item['category'] = category
+
+        item['image_urls'] =image_urls
+        
+        item['tag'] = tag
+        item['post_time'] = post_time
+         
+
+
+    def parse_download_link_1(self,response):
+        sel = Selector(response)
+        download_url = sel.xpath('//div[contains(@style,"text-align: center; width: 40%; margin-left: 30%;")]//a/@href')[0].extract()
+        download_text = download_url.split('//')[-1].split('/')[0]
+        
+        item = response.meta['item']
+        item['link1'] = download_url
+        item['link1_text'] = download_text
+        print download_url,download_text
+        return item
+        
+        
 
     def parse_link(self,response):
 
@@ -121,7 +164,6 @@ class MacbedSpider(CrawlSpider):
         image_urls = response.meta['image_urls']
         tag = response.meta['tag']
 
-        print unique_name
         print '------'
         sel = Selector(response)
 
@@ -228,3 +270,48 @@ class MacbedSpider(CrawlSpider):
             return item
 
 
+    def parse_download_link_2(self,response):
+        print '2222222222222222222'
+        sel = Selector(response)
+        download_url = sel.xpath('//div[contains(@style,"text-align: center; width: 40%; margin-left: 30%;")]//a/@href')[0].extract()
+        download_text = download_url.split('//')[-1].split('/')[0]
+        
+        item = response.meta['item']
+        item['link2'] = download_url
+        item['link2_text'] = download_text
+        print download_url,download_text
+        return item
+
+    def parse_download_link_3(self,response):
+        print '3333333'
+        sel = Selector(response)
+        download_url = sel.xpath('//div[contains(@style,"text-align: center; width: 40%; margin-left: 30%;")]//a/@href')[0].extract()
+        download_text = download_url.split('//')[-1].split('/')[0]
+        
+        item = response.meta['item']
+        item['link3'] = download_url
+        item['link3_text'] = download_text
+        print download_url,download_text
+        return item
+
+    def parse_download_link_4(self,response):
+        sel = Selector(response)
+        download_url = sel.xpath('//div[contains(@style,"text-align: center; width: 40%; margin-left: 30%;")]//a/@href')[0].extract()
+        download_text = download_url.split('//')[-1].split('/')[0]
+        
+        item = response.meta['item']
+        item['link4'] = download_url
+        item['link4_text'] = download_text
+        print download_url,download_text
+        return item
+
+    def parse_download_link_5(self,response):
+        sel = Selector(response)
+        download_url = sel.xpath('//div[contains(@style,"text-align: center; width: 40%; margin-left: 30%;")]//a/@href')[0].extract()
+        download_text = download_url.split('//')[-1].split('/')[0]
+        
+        item = response.meta['item']
+        item['link5'] = download_url
+        item['link5_text'] = download_text
+        print download_url,download_text
+        return item
