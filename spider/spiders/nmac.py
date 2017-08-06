@@ -10,10 +10,10 @@ from spider.items import SpiderItem
 class MacbedSpider(CrawlSpider):
     name = "macbed"
     download_delay = 1
-    allowed_domains = ["macbed.com","www.macbed.com"]
+    allowed_domains = ["nmac.to","www.nmac.to"]
 
     start_urls = [
-        "https://www.macbed.com/"
+        "https://www.nmac.to/"
     ]
 
 
@@ -33,18 +33,18 @@ class MacbedSpider(CrawlSpider):
 
     def parse(self, response):
         sel = Selector(response)
-        last_page = int(sel.xpath('//a[contains(@class,"page-numbers")]//text()')[-2].extract())
+        last_page = int(sel.xpath('//div[contains(@class,"sort-buttons")]//a/@data-paginated')[-1].extract())
  
-        for index,url in enumerate(range(1,last_page)):
-            next_url =  "https://www.macbed.com/page/%s/" % str(url)
+        for index,url in enumerate(range(1,2)):
+            next_url =  "https://nmac.to/page/%s/" % str(url)
             yield Request(next_url, callback=self.parse_results,priority=index)
 
 
     def parse_results(self,response):
         sel = Selector(response)
 
-        urls = sel.xpath('//div[contains(@class, "entry")]//h2//a/@href')
-        for index,url in enumerate(urls):
+        urls = sel.xpath('//div[contains(@class, "article-excerpt")]//h2//a/@href')
+        for index,url in enumerate(urls[:2]):
             yield Request(url.extract(), callback=self.parse_product,priority=index, meta={
                 'splash': {
                     'args': {'wait': 0.5}},
@@ -57,49 +57,52 @@ class MacbedSpider(CrawlSpider):
         
         item = SpiderItem()
 
-        category = sel.xpath('//div[contains(@class, "entry")]//div[contains(@class,"desc")]//a/text()')[1:].extract()
-        tag = sel.xpath('//div[contains(@class, "entry")]//div[contains(@class,"tag")]//a/text()').extract()
-        content = sel.xpath('//div[contains(@class, "article")]//div[contains(@class,"text")]//p|//div[contains(@class, "article")]//div[contains(@class,"text")]//ul|//div[contains(@class, "article")]//div[contains(@class,"text")]//h5|//div[contains(@class, "article")]//div[contains(@class,"text")]//h3[position() < 2]|//div[contains(@class, "article")]//div[contains(@class,"text")]//br')[1:].extract()
-        content = sel.xpath('//div[contains(@class, "article")]//div[contains(@class,"text")]/*[not(@id="div-gpt-ad-1462783699686-0" or @class="appdl"  or self::a or self::script or @class="alignright" or @id="appked_link_39590" or @class="appdl")]')[1:].extract()
+        category = sel.xpath('//div[contains(@class, "category-list")]//a/text()')[-1].extract()
+        tag = sel.xpath('div[contains(@class,"post-tags")]//a/text()').extract()
 
-        what_new = sel.xpath('//div[contains(@class, "article")]//div[contains(@class,"text")]//p|//div[contains(@class, "article")]//div[contains(@class,"text")]//ul|//div[contains(@class, "article")]//div[contains(@class,"text")]//h3')[1:].extract()
+        content = sel.xpath('//div[contains(@class, "the-content")]/*[not(@class="nmac-before-content"  or self::a or self::script or @class="nmac-after-content" or @class="adsbygoogle" or @id="aswift_2_expand" or class="alert fade in alert-error" or class="wp-image-3333" or @style="text-align: center; width: 40%; margin-left: 30%;" or @style="text-align: center" or @style="text-align: center;" or  @class="alert fade in alert-error" or @style="text-align: left;" or @class="alert fade in alert-error " or @style="text-align: center; width: 100%;")]')[1:].extract()
 
-        requirements = sel.xpath('//div[contains(@class, "article")]//div[contains(@class,"text")]//p|//div[contains(@class, "article")]//div[contains(@class,"text")]//ul|//div[contains(@class, "article")]//div[contains(@class,"text")]//h3')[1:].extract()
 
-        download_url = sel.xpath('//div[contains(@class, "appdl")]//a/@href')
-        name = sel.xpath('//div[contains(@class, "entry")]//h2//a/text()').extract()
+
+        download_url = sel.xpath('//div[contains(@class, "the-content")]//a[contains(@class,"btn-block")]/@href').extract()
+        name = sel.xpath('//div[contains(@class, "main-content")]//h1/text()').extract()
 		
-		
+        print name	
         unique_name = name[0].replace(u'\u2013', '-').split('-')[0].strip()
         full_name = name[0].replace(u'\u2013', '-')
-        post_time = sel.xpath('//div[contains(@class, "entry")]//div[contains(@class,"desc")]/text()')[-1].extract().strip()[3:]
+        post_time = sel.xpath('//div[contains(@class,"meta-data")]//span[contains(@class,"date")]/text()')[-1].extract().strip()[6:]
         print post_time
         print '======='
+        print full_name,unique_name,name,category
+        print content
         
 
-        image_urls = sel.xpath('//div[contains(@class, "article")]//div[contains(@class,"text")]//p//img/@src').extract()
+        image_urls = sel.xpath('//div[contains(@class, "the-content")]//img[contains(@class,"size-full")]/@src')[0].extract()
+        print image_urls
+        print download_url
+        #file_urls  = sel.xpath('//div[contains(@class, "article")]//div[contains(@class,"text")]//img[1]').extract()
+        #screen_urls = sel.xpath('//div[contains(@class, "article")]//div[contains(@class,"text")]//img/@src')[-2].extract()
+        #if screen_urls.startswith('http'):
+        #    screen_urls = ['%s' % screen_urls]
+        #else:
+        #    screen_urls = ['http:%s' % screen_urls]
+        
+        #for d_url in download_url:
+        #    request =  Request(d_url, callback=self.parse_link, meta={
+        #        'splash': {
+        #            'args': {'wait': 0.5}},
+        #    })
+        #
+        #request.meta['category'] = category
+        #request.meta['content'] = ''.join(content)
+        #request.meta['tag'] = tag 
+        #request.meta['unique_name'] = unique_name
+        #request.meta['full_name'] = full_name
+        #request.meta['image_urls'] = image_urls
+        ##request.meta['file_urls'] = file_urls
 
-        file_urls  = sel.xpath('//div[contains(@class, "article")]//div[contains(@class,"text")]//img[1]').extract()
-        screen_urls = sel.xpath('//div[contains(@class, "article")]//div[contains(@class,"text")]//img/@src')[-2].extract()
-        if screen_urls.startswith('http'):
-            screen_urls = ['%s' % screen_urls]
-        else:
-            screen_urls = ['http:%s' % screen_urls]
-        
-        request =  Request(download_url.extract()[0], callback=self.parse_link, meta={
-            'splash': {
-                'args': {'wait': 0.5}},
-        })
-        
-        request.meta['category'] = category
-        request.meta['content'] = ''.join(content)
-        request.meta['tag'] = tag 
-        request.meta['unique_name'] = unique_name
-        request.meta['full_name'] = full_name
-        request.meta['image_urls'] = image_urls
-        request.meta['file_urls'] = file_urls
-        request.meta['screen_urls'] =screen_urls
-        request.meta['post_time'] = post_time
+        ##request.meta['screen_urls'] =screen_urls
+        #request.meta['post_time'] = post_time
 
         return request
 
@@ -113,8 +116,8 @@ class MacbedSpider(CrawlSpider):
         category = response.meta['category']
         
         post_time = response.meta['post_time']
-        file_urls = response.meta['file_urls']
-        screen_urls = response.meta['screen_urls']
+        #file_urls = response.meta['file_urls']
+        #screen_urls = response.meta['screen_urls']
         image_urls = response.meta['image_urls']
         tag = response.meta['tag']
 
