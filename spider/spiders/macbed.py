@@ -71,7 +71,7 @@ class MacbedSpider(CrawlSpider):
 		
 		
         unique_name = name[0].replace(u'\u2013', '-').split('-')[0].strip()
-        full_name = name[0].replace(u'\u2013', '-')
+        full_name = name[0].replace(u'\u2013', '-').strip()
         post_time = sel.xpath('//div[contains(@class, "entry")]//div[contains(@class,"desc")]/text()')[-1].extract().strip()[3:]
         print post_time
         print '======='
