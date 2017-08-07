@@ -156,51 +156,8 @@ class SpiderPipeline(object):
         xmlrpc_object   = Custom_WP_XMLRPC()
 
         if not if_exist:
-            #item_id = self.insert_item(item)
             item_id = xmlrpc_object.post_article(ip+"/xmlrpc.php",username,passwd,title, category_list, content, tag_list,logo,post_time,logo_name,post_name)
 
-        #else:
-        #    item_id = self.get_item(item)
-        
-        #logo = item.get('images')[0].get('path')
-        #logo_name = full_logo.split('/')[-1].split('.')[0]
-        
-       # media_id = self.insert_post_image(item_id,logo)    
-        #self.insert_post_media(media_id,logo)
-        #print logo,logo_name,item_id,media_id
-
-        #time.sleep(2)  
-        #for category in category_list:
-        #    category ='-'.join( category.replace('&','').split(' ')).replace('--','-').replace("'",'')
-      	#    if not self.exists_category_tag(category):
-        #        self.insert_category_tag(category)
-
-        #    category_id = self.select_category_tag_id(category)
-
-        #    if category_id:
-        #        try:
-        #            term_taxonomy_id = self.insert_term_taxonomy_tag(category_id,'category')
-        #        except MySQLdb.IntegrityError,e:
-        #            print e
-        #            term_taxonomy_id = self.get_term_taxomomy_id(category_id,'category')
-        #            
-        #        
-        #        self.insert_wp_term_relationships(item_id,term_taxonomy_id)
-
-        #for tag in tag_list:
-        #    tag ='-'.join( tag.replace('&','').split(' ')).replace('--','-').replace("'",'')
-        #    if not self.exists_category_tag(tag):
-        #        self.insert_category_tag(tag)
-
-        #    tag_id = self.select_category_tag_id(tag)
-        #    if tag_id:
-        #        try:
-        #            term_taxonomy_id =  self.insert_term_taxonomy_tag(tag_id,'post_tag')
-        #        except MySQLdb.IntegrityError,e:
-        #            print e
-        #            term_taxonomy_id = self.get_term_taxomomy_id(tag_id,'post_tag')
-        #        
-        #        self.insert_wp_term_relationships(item_id,term_taxonomy_id)
       
 
     def insert_post_image(self,item_id,logo):

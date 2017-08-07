@@ -94,10 +94,18 @@ class Custom_WP_XMLRPC:
         post.post_status = 'publish'
         post.thumbnail = attachment_id
         post.id = client.call(posts.NewPost(post))
-        
         print 'Post Successfully posted. Its Id is: ',post.id
 
 
+        if post.content.find('https://nmac.to') != -1:
+            image = client.call(media.GetMediaItem(attachment_id))
+            import re 
+            post.content = re.sub(r'https://nmac.to(\S+).png',image.link,post.content) 
+            client.call(posts.EditPost(post.id, post))
+            print 'Post Successfully updated. Its Id is: ',post.id
+            
+
+        
 
 
 #########################################

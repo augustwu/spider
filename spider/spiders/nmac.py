@@ -5,7 +5,7 @@ from scrapy.http import Request
 from scrapy.selector import Selector
 from spider.items import SpiderItem
  
-
+ip = "http://192.168.1.9"
  
 class NmacSpider(CrawlSpider):
     name = "nmac"
@@ -60,7 +60,7 @@ class NmacSpider(CrawlSpider):
         category = sel.xpath('//div[contains(@class, "category-list")]//a/text()')[-1].extract()
         tag = sel.xpath('//div[contains(@class,"post-tags-wrapper")]//div[contains(@class,"post-tags")]//a/text()').extract()
 
-        content = sel.xpath('//div[contains(@class, "the-content")]/*[not(@class="nmac-before-content"  or self::a or self::script or @class="nmac-after-content" or @class="adsbygoogle" or @id="aswift_2_expand" or class="alert fade in alert-error" or class="wp-image-3333" or @style="text-align: center; width: 40%; margin-left: 30%;" or @style="text-align: center" or @style="text-align: center;" or  @class="alert fade in alert-error" or @style="text-align: left;" or @class="alert fade in alert-error " or @style="text-align: center; width: 100%;")]').extract()
+        content = sel.xpath('//div[contains(@class, "the-content")]/*[not(@class="nmac-before-content"  or self::a or self::script or @class="nmac-after-content" or @class="adsbygoogle" or @id="aswift_2_expand" or class="alert fade in alert-error" or class="wp-image-3333" or @style="text-align: center; width: 40%; margin-left: 30%;" or @style="text-align: center" or @style="text-align: center;" or  @class="alert fade in alert-error" or @style="text-align: left;" or @class="alert fade in alert-error " or @style="text-align: center; width: 100%;" or @class="size-full")]').extract()
 
 
 
@@ -114,7 +114,7 @@ class NmacSpider(CrawlSpider):
      #   item['full_name'] = full_name
      #   item['content'] = content 
      #   item['category'] = category
-
+#
      #   item['image_urls'] =image_urls
      #   
      #   item['tag'] = tag
@@ -139,127 +139,6 @@ class NmacSpider(CrawlSpider):
         
         
         
-
-    def parse_link(self,response):
-
-        item = SpiderItem()
-
-        unique_name = response.meta['unique_name']
-        full_name = response.meta['full_name']
-        content = response.meta['content']
-        category = response.meta['category']
-        
-        post_time = response.meta['post_time']
-        #file_urls = response.meta['file_urls']
-        #screen_urls = response.meta['screen_urls']
-        image_urls = response.meta['image_urls']
-        tag = response.meta['tag']
-
-
-        sel = Selector(response)
-
-        try:
-            link1 = sel.xpath('//div[contains(@class, "downloadlink")]//a/@href')[0].extract()
-            link1_text = sel.xpath('//div[contains(@class, "downloadlink")]//a/text()')[0].extract()
-        except IndexError,e:
-            link1 = ''
-            link1_text = ''
-            f = open('no_link.html','a')
-            f.write('%s\n' % full_name)
-            f.close()
-        
-        try:
-            link2 = sel.xpath('//div[contains(@class, "downloadlink")]//a/@href')[1].extract()
-            link2_text = sel.xpath('//div[contains(@class, "downloadlink")]//a/text()')[1].extract()
-        except:
-            link2 = ''
-            link2_text = ''
-        try:
-            link3 = sel.xpath('//div[contains(@class, "downloadlink")]//a/@href')[2].extract()
-            link3_text = sel.xpath('//div[contains(@class, "downloadlink")]//a/text()')[2].extract()
-        except:
-            link3 = ''
-            link3_text = ''
-
-        try:
-            link4 = sel.xpath('//div[contains(@class, "downloadlink")]//a/@href')[3].extract()
-            link4_text = sel.xpath('//div[contains(@class, "downloadlink")]//a/text()')[3].extract()
-
-        except:
-            link4 = ''
-            link4_text = ''
-        try:
-            link5 = sel.xpath('//div[contains(@class, "downloadlink")]//a/@href')[4].extract()
-            link5_text = sel.xpath('//div[contains(@class, "downloadlink")]//a/text()')[4].extract()
-        except IndexError,e:
-
-            link5 = ''
-            link5_text = ''
-        
-        try:
-            link6 = sel.xpath('//div[contains(@class, "downloadlink")]//a/@href')[5].extract()
-            link6_text = sel.xpath('//div[contains(@class, "downloadlink")]//a/text()')[5].extract()
-          
-        except IndexError,e:
-            link6 = ''
-            link6_text = ''
-
-        content_added = '''%s<br><h3>%s</h3><br><div>
-        '''  % (content,'Download Now From FreeMac')
-
-        if link2:
-            content_added = '%s<a class="btn btn-small  btn-block" href="%s" target="_blank">%s</a><br> ' % (content_added,link2,link2_text)
-            
-        if link3:
-            content_added = '%s<a class="btn btn-small  btn-block"  href="%s" target="_blank">%s</a><br>' % (content_added,link3,link3_text)
-        if link4:
-            content_added = '%s<a class="btn btn-small  btn-block"  href="%s" target="_blank">%s</a><br>' % (content_added,link4,link4_text)
-
-        if link5:
-            content_added = '%s<a class="btn btn-small  btn-block"  href="%s" target="_blank">%s</a><br>' % (content_added,link5,link5_text)
-        if link6:
-            content_added = '%s<a class="btn btn-small  btn-block"  href="%s" target="_blank">%s</a><br>' % (content_added,link6,link6_text)
-        if link1:
-            content_added = '%s<a class="btn btn-small  btn-block"  href="%s" target="_blank">%s</a><br> ' % (content_added,link1,link1_text)
-
-        
-        content_added = '%s%s' % (content_added,'</div>')
-            
-        if (link1 == '' and link2 =='' and link3 =='' and link4 =='' and link5 =='' and link6 ==''):
-            return None 
-        for cat in category:
-            if cat.find('LIMIT') != -1: 
-                return None
-        else:
-            item['unique_name'] = unique_name
-            item['full_name'] = full_name
-            item['content'] = content_added
-            item['category'] = category
-
-            item['link1'] = link1
-            item['link1_text'] = link1_text
-            item['link2'] = link2
-            item['link2_text'] = link2_text
-
-            item['link3'] = link3
-            item['link3_text'] = link3_text
-
-            item['link4'] = link4
-            item['link4_text'] = link4_text
-
-            item['link5'] = link5
-            item['link5_text'] = link5_text
-
-            item['link6'] = link6
-            item['link6_text'] = link6_text
-            item['image_urls'] =image_urls
-            item['file_urls'] = file_urls
-            
-            item['screen_urls'] =  screen_urls
-            item['tag'] = tag
-            item['post_time'] = post_time
-            return item
-
 
     def parse_download_link_2(self,response):
         sel = Selector(response)
@@ -323,10 +202,15 @@ class NmacSpider(CrawlSpider):
 
         link5 = item.get('link5')
         link5_text = item.get('link5_text')        
-
+        
+        image_url = item.get('image_urls')
+        
+        import re
         content = item.get('content')
         content_added = '''%s<br><h3>%s</h3><br><div>
         '''  % (''.join(content),'Download Now From FreeMac')
+        
+        #content_added = re.sub(r'https://nmac.to(\S+).png',image_url[0],content_added)
 
         if link1:
             content_added = '%s<a class="btn btn-small  btn-block"  href="%s" target="_blank">%s</a><br> ' % (content_added,link1,link1_text)
