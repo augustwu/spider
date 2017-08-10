@@ -19,7 +19,7 @@ NEWSPIDER_MODULE = 'spider.spiders'
 #USER_AGENT = 'spider (+http://www.yourdomain.com)'
 
 # Obey robots.txt rules
-ROBOTSTXT_OBEY = True
+ROBOTSTXT_OBEY = False
 
 # Configure maximum concurrent requests performed by Scrapy (default: 16)
 #CONCURRENT_REQUESTS = 32
@@ -70,6 +70,7 @@ ITEM_PIPELINES = {
     'scrapy.pipelines.images.ImagesPipeline':1,
 }
 CONCURRENT_REQUESTS = 100
+USER_AGENT = "Mozilla/5.0 (Windows NT 6.2; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/27.0.1453.93 Safari/537.36"
 
 
 #IMAGES_URLS_FIELD = "screen_urls"

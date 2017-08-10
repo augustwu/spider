@@ -49,13 +49,24 @@ class Custom_WP_XMLRPC:
         self.wpPassword=wpPassword
         #Download File
         print self.articlePhotoUrl
-        r = requests.get(self.articlePhotoUrl,headers={'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.6; rv:16.0) Gecko/20100101 Firefox/16.0,gzip(gfe)'})
+        #r = requests.get(self.articlePhotoUrl,headers={'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.6; rv:16.0) Gecko/20100101 Firefox/16.0,gzip(gfe)'})
         #with open('test.jpg', "wb") as f:
         #    f.write(r.content)
         from PIL import Image
         from StringIO import StringIO
-        content = r.content
-        im = Image.open(StringIO(content))
+        import urllib2
+	#content = r.content
+	self.articlePhotoUrl = self.articlePhotoUrl.replace('www.macappdownload.net','www.macbed.com')
+	print self.articlePhotoUrl
+	print 'vvvvvvvvvvvvvvvvvvvvv'
+        r = requests.get(self.articlePhotoUrl,headers={'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.6; rv:16.0) Gecko/20100101 Firefox/16.0,gzip(gfe)'})
+	#content = urllib2.urlopen(self.articlePhotoUrl).read()
+	
+
+        im = Image.open(StringIO(r.content))
+	#im.seek(0)
+	#im.verify()
+	
         rgb_im = im.convert('RGB')
         self.path = os.path.join(os.getcwd(),'image',logo_name)
         print self.path

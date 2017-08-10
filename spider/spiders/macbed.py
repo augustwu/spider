@@ -35,7 +35,7 @@ class MacbedSpider(CrawlSpider):
         sel = Selector(response)
         last_page = int(sel.xpath('//a[contains(@class,"page-numbers")]//text()')[-2].extract())
  
-        for index,url in enumerate(range(1,last_page)):
+        for index,url in enumerate(range(1,3)):
             next_url =  "https://www.macbed.com/page/%s/" % str(url)
             yield Request(next_url, callback=self.parse_results,priority=index)
 
