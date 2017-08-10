@@ -4,6 +4,9 @@ from wordpress_xmlrpc.methods import posts
 import xmlrpclib
 from wordpress_xmlrpc.compat import xmlrpc_client
 from wordpress_xmlrpc.methods import media, posts
+from wordpress_xmlrpc import Client, WordPressPost
+from wordpress_xmlrpc.methods.posts import GetPosts, NewPost, EditPost
+
 import os
 import datetime
 import requests
@@ -41,6 +44,13 @@ contact@waqasjamal.com
 ------------------------------------------In DETAIL--------------------------------		
 '''
 class Custom_WP_XMLRPC:
+    def get_post(self,wpUrl,wpUserName,wpPassword,articleTitle):
+        client = Client(self.wpUrl,self.wpUserName,self.wpPassword)
+        l  = client.call(GetPosts({ 'title' : articleTitle }))        
+        if l:
+            return false
+        return true        
+
     def post_article(self,wpUrl,wpUserName,wpPassword,articleTitle, articleCategories, articleContent, articleTags,PhotoUrl,date,logo_name,post_name):
         self.path=os.path.join(os.getcwd(),"00000001.jpg")
         self.articlePhotoUrl=PhotoUrl
