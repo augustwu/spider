@@ -125,9 +125,9 @@ class Custom_WP_XMLRPC:
 #Url of Image on the internet
 ariclePhotoUrl='http://i1.tribune.com.pk/wp-content/uploads/2013/07/584065-twitter-1375197036-960-640x480.jpg' 
 # Dont forget the /xmlrpc.php cause thats your posting adress for XML Server
-wpUrl='http://192.168.1.9/xmlrpc.php' 
+wpUrl='http://freemac.me/xmlrpc.php' 
 #WordPress Username
-wpUserName='wu'
+wpUserName='freemac'
 #WordPress Password
 wpPassword='1'
 #Post Title
